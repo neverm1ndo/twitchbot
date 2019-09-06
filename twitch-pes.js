@@ -38,6 +38,10 @@ function autoPost() {
   }, conf.interval);
 }
 
+function roll() {
+  return Math.floor(Math.random()*100;
+};
+
 Bot.on('join', channel => {
   console.log(`Joined channel: \x1b[30m\x1b[42m${channel}\x1b[0m`);
   console.log(`> Start at ${new Date()}`);
@@ -61,6 +65,9 @@ Bot.on('message', chatter => {
       break;
     case '!info':
         links();
+      break;
+    case '!roll':
+      Bot.say(`${chatter.username} нароллил: ` + roll() + ' BlessRNG');
       break;
   }
 });
