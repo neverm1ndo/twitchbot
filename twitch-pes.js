@@ -3,8 +3,7 @@
 const TwitchBot = require('twitch-bot')
 const request = require('request');
 
-let conf = {
-  api : 'https://api.twitch.tv/helix/streams?user_id=133676909',
+const conf = {
   interval : 600000, // глобальный кулдаун автоматического постинга ссылок <- 10min
   delay : 120000, // делей между различными ссылками <- 2 min
   links : {
@@ -17,10 +16,14 @@ let conf = {
     'Accept':  'application/vnd.twitchtv.v5+json',
     'Content-Type' : 'application/json',
     'Client-ID': 'ezap2dblocyxqnsjhl9dpyw1jpn8c7'
+  },
+  api: {
+    id: '133676909', //Это твой ID на твиче
+    url : 'https://api.twitch.tv/helix/streams?user_id=',
   }
 };
 
-let streamInfo;
+let stream;
 
 const Bot = new TwitchBot({
   username: 'evilsobakabot',
@@ -35,21 +38,21 @@ function links() {
 function $timeout(message, index) {
     setTimeout(()=> {
       Bot.say(message);
-      console.log(` >BOT | AutoMessage #${index} : ${message}`);
+      console.log(`> BOT | AutoMessage #${index} : ${message}`);
     }, conf.delay*index);
 }
 
 function getStreamInfo() {
   let options = {
-      url: api,
+      url: conf.api.url + conf.api.id,
       method: 'GET',
-      headers: headers
+      headers: conf.headers
   };
   request(options,(error, response, body) => {
     if (!error && response.statusCode == 200) {
-      streamInfo = JSON.parse(body).data[0]
+        return JSON.parse(body).data[0];
     } else {
-      console.log('> BOT | Error: ', error.message);
+      console.log( `> BOT | Error: \x1b[31m${error.message}\x1b[0m`);
     }
   })
 }
@@ -63,14 +66,21 @@ function autoPost() {
 }
 
 function uptime() {
-    let start = streamInfo.started_at;
+  if (!stream) stream = getStreamInfo();
+  return new Promise((resolve, reject) => {
+    let start = stream.started_at;
     let range = new Date(Date.now() - Date.parse(start));
-    if (range) {
-      return `Стрим идет уже ${range.getHours()}:${range.getMinutes()}:${range.getSeconds()} FrankerZ`;
+    if (streamInfo) {
+      resolve(`Стрим идет уже ${range.getHours()}:${range.getMinutes()}:${range.getSeconds()} FrankerZ`);
     } else {
-      return `Стрим только что начался! CorgiDerp`;
+      reject();
     }
-};
+  }).then(resolve => { Bot.say(resolve) })
+    .catch(err => {
+      Bot.say(`Стрим оффлайн или только только начался! CorgiDerp`);
+      console.log(`> BOT | Error: \x1b[31m${err.message}\x1b[0m`);
+     });
+}
 
 function roll() {
   return Math.floor(Math.random()*100);
@@ -80,6 +90,7 @@ Bot.on('join', channel => {
   console.log(`Joined channel: \x1b[30m\x1b[42m${channel}\x1b[0m`);
   console.log(`> Start at ${new Date()}`);
   autoPost();
+  stream = getStreamInfo();
 });
 
 Bot.on('error', err => {
@@ -104,8 +115,7 @@ Bot.on('message', chatter => {
       Bot.say(`${chatter.username} нароллил: ` + roll() + ' BlessRNG');
       break;
     case '!uptime':
-    console.log('> BOT | Waiting uptime request...');
-      Bot.say(uptime());
+        uptime();
       break;
   }
 });
