@@ -33,8 +33,7 @@ function autoPost() {
   setInterval(()=> {
     links();
     $timeout('Подробный гайд от бустера на Ember Spirit: https://vk.com/@necessaryevil_boost-ember-spirit-kratkii-ekskurs-v-mir-legkih-25', 1);
-    $timeout('Почему стоит заказывать буст: https://vk.com/@necessaryevil_boost-bust-reitinga-mify-i-pravda', 2);
-    $timeout(`Поддержи стримлера: ${conf.links.donationalerts}`, 3);
+    $timeout(`Поддержи стримлера: ${conf.links.donationalerts}`, 2);
   }, conf.interval);
 }
 
