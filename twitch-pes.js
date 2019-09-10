@@ -24,6 +24,7 @@ const conf = {
 };
 
 let stream;
+let botStartDate = new Date();
 
 const Bot = new TwitchBot({
   username: 'evilsobakabot',
@@ -42,20 +43,22 @@ function $timeout(message, index) {
     }, conf.delay*index);
 }
 
-function getStreamInfo() {
-  let options = {
+  let _stream = new Promise((resolve, reject) => {
+    let options = {
       url: conf.api.url + conf.api.id,
       method: 'GET',
       headers: conf.headers
-  };
-  request(options,(error, response, body) => {
-    if (!error && response.statusCode == 200) {
-        return JSON.parse(body).data[0];
-    } else {
-      console.log( `> BOT | Error: \x1b[31m${error.message}\x1b[0m`);
-    }
-  })
-}
+    };
+    request(options,(error, response, body) => {
+      if (!error && response.statusCode == 200) {
+        resolve(JSON.parse(body).data[0]);
+      } else {
+        console.log( `> BOT | Error: \x1b[31m${error.message}\x1b[0m`);
+        reject(err);
+        }
+      })
+  }).then(res => { stream = res })
+    .catch((err)=> {console.error(err);});
 
 function autoPost() {
   setInterval(()=> {
@@ -65,19 +68,34 @@ function autoPost() {
   }, conf.interval);
 }
 
-function uptime() {
-  if (!stream) stream = getStreamInfo();
-  return new Promise((resolve, reject) => {
+function convertNum(str) {
+  let pad = "00"
+  return pad.substring(0, pad.length - str.length) + str;
+}
+
+function timeParse(time) {
+  let date = new Date(time);
+  let hours = (date.getHours() - 3).toString();
+  let minutes = date.getMinutes().toString();
+  let seconds = date.getSeconds().toString();
+  return `${convertNum(hours)}:${convertNum(minutes)}:${convertNum(seconds)}`;
+}
+
+async function uptime() {
+  if (!stream) {
+    await _stream;
+  }
+  return await new Promise((resolve, reject) => {
     let start = stream.started_at;
     let range = new Date(Date.now() - Date.parse(start));
-    if (streamInfo) {
-      resolve(`Стрим идет уже ${range.getHours()}:${range.getMinutes()}:${range.getSeconds()} FrankerZ`);
+    if (stream) {
+      resolve(`Стрим идет уже ${timeParse(time)}`);
     } else {
       reject();
     }
   }).then(resolve => { Bot.say(resolve) })
     .catch(err => {
-      Bot.say(`Стрим оффлайн или только только начался! CorgiDerp`);
+      Bot.say(`Стрим идет ${timeParse(Date.now() - Date.parse(botStartDate))} `);
       console.log(`> BOT | Error: \x1b[31m${err.message}\x1b[0m`);
      });
 }
@@ -86,11 +104,11 @@ function roll() {
   return Math.floor(Math.random()*100);
 };
 
+
 Bot.on('join', channel => {
   console.log(`Joined channel: \x1b[30m\x1b[42m${channel}\x1b[0m`);
   console.log(`> Start at ${new Date()}`);
   autoPost();
-  stream = getStreamInfo();
 });
 
 Bot.on('error', err => {
