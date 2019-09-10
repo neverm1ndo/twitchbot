@@ -18,9 +18,24 @@ stdin.addListener("data", function(d) {
 });
 
 function getChannelId(nickname) {
-  request({url: `https://api.twitch.tv/kraken/users?login=${nickname}`, method: 'GET', headers: headers}, (error, response, body)=> {
-    console.log('Name: ', JSON.parse(body).users[0].display_name);
-    console.log('ID: ', JSON.parse(body).users[0]._id);
-    console.log(JSON.parse(body).users[0]);
-  })
+  new Promise((resolve, reject)=> {
+    request({url: `https://api.twitch.tv/kraken/users?login=${nickname}`, method: 'GET', headers: headers}, (error, response, body)=> {
+      if(body) {
+        resolve(body)
+      } else {
+        reject(err);
+      }
+    })
+  }).then(body => {
+    console.log('-----------------------------------------------');
+    console.log('| Name    | ', JSON.parse(body).users[0].display_name );
+    console.log('| ID      | ', JSON.parse(body).users[0]._id);
+    console.log('| Type    | ', JSON.parse(body).users[0].type);
+    console.log('| Bio     | ', JSON.parse(body).users[0].bio);
+    console.log('| Created | ', JSON.parse(body).users[0].created_at);
+    console.log('| Updated | ', JSON.parse(body).users[0].updated_at);
+    console.log('-----------------------------------------------');
+  }).catch( err => {
+    console.error('Error: Нет такого никнейма | ', err.message);
+  });
 }
