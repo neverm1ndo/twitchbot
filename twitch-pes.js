@@ -1,27 +1,11 @@
 'use strict'
 
+const Table = require('./lib/table.module.js');
+const Timestamp = require('./lib/timestamp.module.js');
+
 const TwitchBot = require('twitch-bot')
 const request = require('request');
-
-const conf = {
-  interval : 600000, // глобальный кулдаун автоматического постинга ссылок <- 10min
-  delay : 120000, // делей между различными ссылками <- 2 min
-  links : {
-    vk: 'https://vk.com/necessaryevil0',
-    donationalerts: 'https://www.donationalerts.com/r/necessaryevil0',
-    site: 'https://necessaryboost.pro/',
-    dotabuff: 'https://www.dotabuff.com/players/120494497',
-  },
-  headers: {
-    'Accept':  'application/vnd.twitchtv.v5+json',
-    'Content-Type' : 'application/json',
-    'Client-ID': 'ezap2dblocyxqnsjhl9dpyw1jpn8c7'
-  },
-  api: {
-    id: '133676909', //Это твой ID на твиче
-    url : 'https://api.twitch.tv/helix/streams?user_id=',
-  }
-};
+const conf = require('./bot.config.js');
 
 let stream, _stream;
 let botStartDate = new Date();
@@ -32,14 +16,6 @@ const Bot = new TwitchBot({
   channels: ['necessaryevil0']
 })
 
-class Timestamp {
-  constructor(){}
-  static show() {
-    let timestamp = timeParse(Date.now(), 0);
-    return `[${timestamp}]`;
-  }
-}
-
 function links() {
   Bot.say(`DOTABUFF: ${conf.links.dotabuff} || VK: ${conf.links.vk} || Узнать цены на буст: ${conf.links.site}`)
 };
@@ -47,7 +23,7 @@ function links() {
 function $timeout(message, index) {
     setTimeout(()=> {
       Bot.say(message);
-      console.log(`> BOT | AutoMessage #${index} ${Timestamp.show()}: ${message}`);
+      console.log(`> BOT | AutoMessage #${index} ${Timestamp.stamp()}: ${message}`);
     }, conf.delay*index);
 }
 
@@ -59,19 +35,6 @@ function autoPost() {
   }, conf.interval);
 }
 
-function convertNum(str) {
-  let pad = "00";
-  return pad.substring(0, pad.length - str.length) + str;
-}
-
-function timeParse(time, gmt) {
-  let date = new Date(time);
-  let hours = (date.getHours() - gmt).toString();
-  let minutes = date.getMinutes().toString();
-  let seconds = date.getSeconds().toString();
-  return `${convertNum(hours)}:${convertNum(minutes)}:${convertNum(seconds)}`;
-}
-
 async function uptime() {
   if (!stream) {
     await _stream;
@@ -80,15 +43,15 @@ async function uptime() {
     let start = stream.started_at;
     let range = new Date(Date.now() - Date.parse(start));
     if (stream) {
-      console.log(`> BOT | Success !uptime request: \x1b[32m${timeParse(range, 3)}\x1b[0m | Данные получены с сервера Twitch`);
-      resolve(`Стрим идет уже ${timeParse(range, 3)}`);
+      console.log(`> BOT | Success !uptime request: \x1b[32m${Timestamp.time(range, 3)}\x1b[0m | Данные получены с сервера Twitch`);
+      resolve(`Стрим идет уже ${Timestamp.time(range, 3)}`);
     } else {
       reject();
     }
   }).then(resolve => { Bot.say(resolve) })
     .catch(err => {
       console.log(`> BOT | Error !uptime request: \x1b[31m${err.message}\x1b[0m | Countdown from the start of the bot started...`);
-      Bot.say(`Стрим идет ${timeParse(Date.now() - Date.parse(botStartDate), 3)} `);
+      Bot.say(`Стрим идет ${Timestamp.time(Date.now() - Date.parse(botStartDate), 3)} `);
      });
 }
 
@@ -96,10 +59,9 @@ function roll() {
   return Math.floor(Math.random()*100);
 };
 
-
 Bot.on('join', channel => {
   console.log(`Joined channel: \x1b[30m\x1b[42m${channel}\x1b[0m`);
-  console.log(`> Start at ${Timestamp.show()}`);
+  console.log(`> Start at ${Timestamp.stamp()}`);
   autoPost();
   _stream = new Promise((resolve, reject) => {
     process.stdout.write(`> BOT | Pending stream info from ${conf.api.url + conf.api.id} ... `);
@@ -124,9 +86,7 @@ Bot.on('join', channel => {
     stream = res ;
     console.log('| \x1b[32mSUCCESS!\x1b[0m');
     console.log( `      | ----> \x1b[32mAll stream info successfully received\x1b[0m\n`);
-    for (let key in res) {
-      process.stdout.write(`      | ${key}: \x1b[32m${res[key]}\x1b[0m\n`);
-    }
+    Table.build(res);
   }).catch((err)=> {
     console.log( `| \x1b[31mERROR\x1b[0m`);
     console.log( `      | ----> \x1b[31mStream is offline or just started\x1b[0m\n`);

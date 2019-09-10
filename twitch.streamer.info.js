@@ -1,6 +1,7 @@
 'use strict'
 
 const request = require('request');
+const Table = require('./lib/table.module.js');
 
 const headers = {
     'Accept':  'application/vnd.twitchtv.v5+json',
@@ -27,14 +28,8 @@ function getChannelId(nickname) {
       }
     })
   }).then(body => {
-    console.log('-----------------------------------------------');
-    console.log('| Name    | ', JSON.parse(body).users[0].display_name );
-    console.log('| ID      | ', JSON.parse(body).users[0]._id);
-    console.log('| Type    | ', JSON.parse(body).users[0].type);
-    console.log('| Bio     | ', JSON.parse(body).users[0].bio);
-    console.log('| Created | ', JSON.parse(body).users[0].created_at);
-    console.log('| Updated | ', JSON.parse(body).users[0].updated_at);
-    console.log('-----------------------------------------------');
+    console.log(JSON.parse(body).users[0]);
+    Table.draw(JSON.parse(body).users[0]);
   }).catch( err => {
     console.error('Error: Нет такого никнейма | ', err.message);
   });
