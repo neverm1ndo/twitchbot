@@ -18,8 +18,8 @@ const conf = {
     'Client-ID': 'ezap2dblocyxqnsjhl9dpyw1jpn8c7'
   },
   api: {
-    id: '133676909', //Это твой ID на твиче
-    // id: '38461708',
+    // id: '133676909', //Это твой ID на твиче
+    id: '38461708',
     url : 'https://api.twitch.tv/helix/streams?user_id=',
   }
 };
@@ -116,8 +116,9 @@ Bot.on('join', channel => {
   }).then(res => {
     stream = res ;
     console.log('| \x1b[32mSUCCESS!\x1b[0m');
+    console.log( `      | ----> \x1b[32mAll stream info successfully received\x1b[0m\n`);
     for (let key in res) {
-      process.stdout.write(` | ${key}: \x1b[32m${res[key]}\x1b[0m\n`);
+      process.stdout.write(`      | ${key}: \x1b[32m${res[key]}\x1b[0m\n`);
     }
   }).catch((err)=> {
     console.log( `| \x1b[31mERROR\x1b[0m`);
