@@ -23,7 +23,7 @@ function links() {
 function $timeout(message, index) {
     setTimeout(()=> {
       Bot.say(message);
-      console.log(`> BOT | AutoMessage #${index} ${Timestamp.stamp()}: ${message}`);
+      // console.log(`> BOT | AutoMessage #${index} ${Timestamp.stamp()}: ${message}`);
     }, conf.delay*index);
 }
 
