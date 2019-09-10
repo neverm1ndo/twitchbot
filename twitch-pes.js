@@ -32,6 +32,14 @@ const Bot = new TwitchBot({
   channels: ['necessaryevil0']
 })
 
+class Timestamp {
+  constructor(){}
+  static show() {
+    let timestamp = timeParse(Date.now(), 0);
+    return `[${timestamp}]`;
+  }
+}
+
 function links() {
   Bot.say(`DOTABUFF: ${conf.links.dotabuff} || VK: ${conf.links.vk} || Узнать цены на буст: ${conf.links.site}`)
 };
@@ -39,7 +47,7 @@ function links() {
 function $timeout(message, index) {
     setTimeout(()=> {
       Bot.say(message);
-      console.log(`> BOT | AutoMessage #${index} : ${message}`);
+      console.log(`> BOT | AutoMessage #${index} ${Timestamp.show()}: ${message}`);
     }, conf.delay*index);
 }
 
@@ -52,13 +60,13 @@ function autoPost() {
 }
 
 function convertNum(str) {
-  let pad = "00"
+  let pad = "00";
   return pad.substring(0, pad.length - str.length) + str;
 }
 
-function timeParse(time) {
+function timeParse(time, gmt) {
   let date = new Date(time);
-  let hours = (date.getHours() - 3).toString();
+  let hours = (date.getHours() - gmt).toString();
   let minutes = date.getMinutes().toString();
   let seconds = date.getSeconds().toString();
   return `${convertNum(hours)}:${convertNum(minutes)}:${convertNum(seconds)}`;
@@ -72,15 +80,15 @@ async function uptime() {
     let start = stream.started_at;
     let range = new Date(Date.now() - Date.parse(start));
     if (stream) {
-      console.log(`> BOT | Success !uptime request: \x1b[32m${timeParse(range)}\x1b[0m | Данные получены с сервера Twitch`);
-      resolve(`Стрим идет уже ${timeParse(range)}`);
+      console.log(`> BOT | Success !uptime request: \x1b[32m${timeParse(range, 3)}\x1b[0m | Данные получены с сервера Twitch`);
+      resolve(`Стрим идет уже ${timeParse(range, 3)}`);
     } else {
       reject();
     }
   }).then(resolve => { Bot.say(resolve) })
     .catch(err => {
-      Bot.say(`Стрим идет ${timeParse(Date.now() - Date.parse(botStartDate))} `);
       console.log(`> BOT | Error !uptime request: \x1b[31m${err.message}\x1b[0m | Countdown from the start of the bot started...`);
+      Bot.say(`Стрим идет ${timeParse(Date.now() - Date.parse(botStartDate), 3)} `);
      });
 }
 
@@ -91,7 +99,7 @@ function roll() {
 
 Bot.on('join', channel => {
   console.log(`Joined channel: \x1b[30m\x1b[42m${channel}\x1b[0m`);
-  console.log(`> Start at ${new Date()}`);
+  console.log(`> Start at ${Timestamp.show()}`);
   autoPost();
   _stream = new Promise((resolve, reject) => {
     process.stdout.write(`> BOT | Pending stream info from ${conf.api.url + conf.api.id} ... `);
