@@ -89,14 +89,15 @@ async function uptime() {
     let start = stream.started_at;
     let range = new Date(Date.now() - Date.parse(start));
     if (stream) {
-      resolve(`Стрим идет уже ${timeParse(time)}`);
+      console.log(`> BOT | Success !uptime request: \x1b[32m${timeParse(range)}\x1b[0m | Данные получены с сервера Twitch`);
+      resolve(`Стрим идет уже ${timeParse(range)}`);
     } else {
       reject();
     }
   }).then(resolve => { Bot.say(resolve) })
     .catch(err => {
       Bot.say(`Стрим идет ${timeParse(Date.now() - Date.parse(botStartDate))} `);
-      console.log(`> BOT | Error: \x1b[31m${err.message}\x1b[0m`);
+      console.log(`> BOT | Error !uptime request: \x1b[31m${err.message}\x1b[0m | Запущен отсчет от начала запуска бота`);
      });
 }
 
