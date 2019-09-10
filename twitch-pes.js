@@ -81,7 +81,7 @@ async function uptime() {
   }).then(resolve => { Bot.say(resolve) })
     .catch(err => {
       Bot.say(`Стрим идет ${timeParse(Date.now() - Date.parse(botStartDate))} `);
-      console.log(`> BOT | Error !uptime request: \x1b[31m${err.message}\x1b[0m | Запущен отсчет от начала запуска бота`);
+      console.log(`> BOT | Error !uptime request: \x1b[31m${err.message}\x1b[0m | Countdown from the start of the bot started...`);
      });
 }
 
