@@ -19,11 +19,12 @@ const conf = {
   },
   api: {
     id: '133676909', //Это твой ID на твиче
+    // id: '38461708',
     url : 'https://api.twitch.tv/helix/streams?user_id=',
   }
 };
 
-let stream;
+let stream, _stream;
 let botStartDate = new Date();
 
 const Bot = new TwitchBot({
@@ -42,23 +43,6 @@ function $timeout(message, index) {
       console.log(`> BOT | AutoMessage #${index} : ${message}`);
     }, conf.delay*index);
 }
-
-  let _stream = new Promise((resolve, reject) => {
-    let options = {
-      url: conf.api.url + conf.api.id,
-      method: 'GET',
-      headers: conf.headers
-    };
-    request(options,(error, response, body) => {
-      if (!error && response.statusCode == 200) {
-        resolve(JSON.parse(body).data[0]);
-      } else {
-        console.log( `> BOT | Error: \x1b[31m${error.message}\x1b[0m`);
-        reject(err);
-        }
-      })
-  }).then(res => { stream = res })
-    .catch((err)=> {console.error(err);});
 
 function autoPost() {
   setInterval(()=> {
@@ -110,6 +94,35 @@ Bot.on('join', channel => {
   console.log(`Joined channel: \x1b[30m\x1b[42m${channel}\x1b[0m`);
   console.log(`> Start at ${new Date()}`);
   autoPost();
+  _stream = new Promise((resolve, reject) => {
+    process.stdout.write(`> BOT | Pending stream info from ${conf.api.url + conf.api.id} ... `);
+    let options = {
+      url: conf.api.url + conf.api.id,
+      method: 'GET',
+      headers: conf.headers
+    };
+    request(options,(error, response, body) => {
+      if (!error && response.statusCode == 200) {
+        let data = JSON.parse(body).data;
+        if (data[0]) {
+          resolve(data[0]);
+        } else {
+          reject();
+        }
+      } else {
+        reject();
+        }
+      })
+  }).then(res => {
+    stream = res ;
+    console.log('| \x1b[32mSUCCESS!\x1b[0m');
+    for (let key in res) {
+      process.stdout.write(` | ${key}: \x1b[32m${res[key]}\x1b[0m\n`);
+    }
+  }).catch((err)=> {
+    console.log( `| \x1b[31mERROR\x1b[0m`);
+    console.log( `      | ----> \x1b[31mStream is offline or just started\x1b[0m\n`);
+  });
 });
 
 Bot.on('error', err => {
@@ -138,6 +151,7 @@ Bot.on('message', chatter => {
       break;
   }
 });
+
 Bot.on('subscription', event => {
   Bot.say(`${event.login}, спасибо за подписку, братик! PogChamp`);
-})
+});
