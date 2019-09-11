@@ -1,5 +1,7 @@
 'use strict'
 
+const fs = require('fs');
+
 const Table = require('./lib/table.module.js');
 const Timestamp = require('./lib/timestamp.module.js');
 
@@ -9,12 +11,9 @@ const conf = require('./bot.config.js');
 
 let stream, _stream;
 let botStartDate = new Date();
+let environment = fs.readFileSync("environment.json");
 
-const Bot = new TwitchBot({
-  username: 'evilsobakabot',
-  oauth: 'oauth:qg834r817uk9c9vc7vqhm46vaej8td',
-  channels: ['necessaryevil0']
-})
+const Bot = new TwitchBot(JSON.parse(environment.bot));
 
 function links() {
   Bot.say(`DOTABUFF: ${conf.links.dotabuff} || VK: ${conf.links.vk} || Узнать цены на буст: ${conf.links.site}`)
