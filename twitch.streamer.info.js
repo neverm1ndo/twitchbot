@@ -28,8 +28,7 @@ function getChannelId(nickname) {
       }
     })
   }).then(body => {
-    console.log(JSON.parse(body).users[0]);
-    Table.draw(JSON.parse(body).users[0]);
+    Table.build(JSON.parse(body).users[0]);
   }).catch( err => {
     console.error('Error: Нет такого никнейма | ', err.message);
   });
