@@ -13,7 +13,7 @@ let stream, _stream;
 let botStartDate = new Date();
 let environment = fs.readFileSync("environment.json");
 
-const Bot = new TwitchBot(JSON.parse(environment.bot));
+const Bot = new TwitchBot(JSON.parse(environment).bot);
 
 function links() {
   Bot.say(`DOTABUFF: ${conf.links.dotabuff} || VK: ${conf.links.vk} || Узнать цены на буст: ${conf.links.site}`)
