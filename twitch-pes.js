@@ -42,15 +42,15 @@ async function uptime() {
     let start = stream.started_at;
     let range = new Date(Date.now() - Date.parse(start));
     if (stream) {
-      console.log(`> BOT | Success !uptime request: \x1b[32m${Timestamp.time(range, 3)}\x1b[0m | Данные получены с сервера Twitch`);
-      resolve(`Стрим идет уже ${Timestamp.time(range, 3)}`);
+      console.log(`> BOT | Success !uptime request: \x1b[32m${Timestamp.parse(range, 3)}\x1b[0m | Данные получены с сервера Twitch`);
+      resolve(`Стрим идет уже ${Timestamp.parse(range, 3)}`);
     } else {
       reject();
     }
   }).then(resolve => { Bot.say(resolve) })
     .catch(err => {
       console.log(`> BOT | Error !uptime request: \x1b[31m${err.message}\x1b[0m | Countdown from the start of the bot started...`);
-      Bot.say(`Стрим идет ${Timestamp.time(Date.now() - Date.parse(botStartDate), 3)} `);
+      Bot.say(`Стрим идет ${Timestamp.parse(Date.now() - Date.parse(botStartDate), 3)} `);
      });
 }
 
