@@ -107,9 +107,6 @@ Bot.on('message', chatter => {
     case '!donate':
       Bot.say(`OhMyDog Поддержи стримлера: ${conf.links.donationalerts}`)
       break;
-    case '!info':
-        links();
-      break;
     case '!roll':
       Bot.say(`${chatter.username} нароллил: ` + roll() + ' BlessRNG');
       break;
