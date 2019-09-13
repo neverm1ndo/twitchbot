@@ -8,7 +8,7 @@ const Player = require('./lib/player.module.js');
 
 const TwitchBot = require('twitch-bot')
 const request = require('request');
-const conf = require('./bot.config.js');
+const conf = require('./configs/bot.config.js');
 
 let stream, _stream;
 let botStartDate = new Date();
