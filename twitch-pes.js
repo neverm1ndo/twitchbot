@@ -4,6 +4,7 @@ const fs = require('fs');
 
 const Table = require('./lib/table.module.js');
 const Timestamp = require('./lib/timestamp.module.js');
+const Player = require('./lib/player.module.js');
 
 const TwitchBot = require('twitch-bot')
 const request = require('request');
@@ -15,7 +16,9 @@ let environment = fs.readFileSync("environment.json");
 
 const Bot = new TwitchBot(JSON.parse(environment).bot);
 
-const dictionary = JSON.parse(fs.readFileSync("banned.words.dict.json")).words;
+const dictionary = JSON.parse(fs.readFileSync("./etc/banned.words.dict.json")).words;
+const sounds = JSON.parse(fs.readFileSync("./etc/sounds.library.json"));
+
 
 function links() {
   Bot.say(`DOTABUFF: ${conf.links.dotabuff} || VK: ${conf.links.vk} || Узнать цены на буст: ${conf.links.site}`)
@@ -107,6 +110,11 @@ Bot.on('message', chatter => {
       }
     });
   }
+  for (let command in sounds) {
+      if (chatter.message == '!' + command) {
+        Player.play(sounds[command]);
+      }
+  }
   switch (chatter.message) {
     case '!info':
         links();
@@ -123,7 +131,7 @@ Bot.on('message', chatter => {
     case '!uptime':
         uptime();
       break;
-  }
+    }
 });
 
 Bot.on('subscription', event => {
