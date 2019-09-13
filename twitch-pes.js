@@ -139,5 +139,6 @@ Bot.on('subscription', event => {
 });
 
 Bot.on('ban', event => {
+  console.log(`> BOT | ${Timestamp.stamp()} Ban event info:`);
   Table.build(event);
 });
