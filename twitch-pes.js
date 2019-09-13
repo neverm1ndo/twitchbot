@@ -15,6 +15,8 @@ let environment = fs.readFileSync("environment.json");
 
 const Bot = new TwitchBot(JSON.parse(environment).bot);
 
+const dictionary = JSON.parse(fs.readFileSync("banned.words.dict.json")).words;
+
 function links() {
   Bot.say(`DOTABUFF: ${conf.links.dotabuff} || VK: ${conf.links.vk} || Узнать цены на буст: ${conf.links.site}`)
 };
@@ -97,6 +99,14 @@ Bot.on('error', err => {
 })
 
 Bot.on('message', chatter => {
+  if (!chatter.mod) {
+    dictionary.forEach((word)=> {
+      if (chatter.message.includes(word)) {
+        Bot.ban(chatter.username, 'Спам');
+        console.warn(`> BOT | Catched banned word \x1b[1m\x1b[31m${word}\x1b[0m! Banned user \x1b[1m\x1b[31m${chatter.username}\x1b[0m`);
+      }
+    });
+  }
   switch (chatter.message) {
     case '!info':
         links();
@@ -118,4 +128,8 @@ Bot.on('message', chatter => {
 
 Bot.on('subscription', event => {
   Bot.say(`${event.login}, спасибо за подписку, братик! PogChamp`);
+});
+
+Bot.on('ban', event => {
+  Table.build(event);
 });
