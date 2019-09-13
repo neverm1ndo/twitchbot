@@ -111,7 +111,7 @@ Bot.on('message', chatter => {
     });
   }
   for (let command in sounds) {
-      if (chatter.message == '!' + command) {
+      if (chatter.message == conf.prefix + command) {
         Player.play(sounds[command]);
       }
   }
