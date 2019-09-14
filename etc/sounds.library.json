@@ -1,3 +1,4 @@
 {
-  "горит" : { "path" : "./probs/gorit.mp3", "delay": 20000 }
+  "горит" : { "path" : "./probs/gorit.mp3", "delay": 20000 },
+  "бип" : { "path" : "./probs/beep-07.mp3", "delay": 50000 }
 }
