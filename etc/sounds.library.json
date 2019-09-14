@@ -1,4 +1,5 @@
 {
   "колок" : "./probs/bell.mp3",
-  "бип" : "./probs/beep-07.mp3"
+  "бип" : "./probs/beep-07.mp3",
+  "горит": "./probs/gorit.mp3"
 }
