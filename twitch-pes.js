@@ -64,11 +64,11 @@ function roll() {
 };
 
 Bot.on('join', channel => {
-  console.log(`Joined channel: \x1b[30m\x1b[42m${channel}\x1b[0m`);
-  console.log(`> Start at ${Timestamp.stamp()}`);
+  console.log(`Joined channel: ${channel} \x1b[32m⚫\x1b[0m`);
+  console.log(`> Start at \x1b[1m${Timestamp.stamp()}\x1b[0m`);
   autoPost();
   _stream = new Promise((resolve, reject) => {
-    process.stdout.write(`> BOT | Pending stream info from ${conf.api.url + conf.api.id} ... `);
+    process.stdout.write(`> BOT | Pending stream info from Twitch.tv ... `);
     let options = {
       url: conf.api.url + conf.api.id,
       method: 'GET',
@@ -88,12 +88,12 @@ Bot.on('join', channel => {
       })
   }).then(res => {
     stream = res ;
-    console.log('| \x1b[32mSUCCESS!\x1b[0m');
-    console.log( `      | ----> \x1b[32mAll stream info successfully received\x1b[0m\n`);
+    console.log('| \x1b[32m\x1b[1mSUCCESS!\x1b[0m');
+    console.log( `      └───> \x1b[32mAll stream info successfully received\x1b[0m\n`);
     Table.build(res);
   }).catch((err)=> {
-    console.log( `| \x1b[31mERROR\x1b[0m`);
-    console.log( `      | ----> \x1b[31mStream is offline or just started\x1b[0m\n`);
+    console.log( `| \x1b[31m\x1b[1mERROR\x1b[0m`);
+    console.log( `      └───> \x1b[31mStream is offline or just started\x1b[0m\n`);
   });
 });
 
@@ -112,7 +112,7 @@ Bot.on('message', chatter => {
   }
   for (let command in sounds) {
       if (chatter.message == conf.prefix + command) {
-        Player.play(sounds[command]);
+        Player.play(sounds[command].path, sounds[command].delay);
       }
   }
   switch (chatter.message) {

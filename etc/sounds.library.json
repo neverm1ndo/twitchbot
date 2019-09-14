@@ -1,5 +1,3 @@
 {
-  "колок" : "./probs/bell.mp3",
-  "бип" : "./probs/beep-07.mp3",
-  "горит": "./probs/gorit.mp3"
+  "горит" : { "path" : "./probs/gorit.mp3", "delay": 20000 }
 }
