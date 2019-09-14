@@ -1,4 +1,12 @@
 {
-  "горит" : { "path" : "./probs/gorit.mp3", "delay": 20000 },
-  "бип" : { "path" : "./probs/beep-07.mp3", "delay": 50000 }
+  "бип" : { "path" : "./probs/beep-07.mp3", "delay": 50000 },
+  "ааа" : { "path" : "./probs/aaablyat.mp3", "delay": 30000 },
+  "горит" : { "path" : "./probs/gorit.mp3", "delay": 30000 },
+  "шотворишь" : { "path" : "./probs/aleks.mp3", "delay": 30000 },
+  "флешема" : { "path" : "./probs/fleshima.mp3", "delay": 30000 },
+  "хилимсяживем" : { "path" : "./probs/healymsya.mp3", "delay": 30000 },
+  "казино" : { "path" : "./probs/kazino.mp3", "delay": 30000 },
+  "лгд" : { "path" : "./probs/lgd.mp3", "delay": 30000 },
+  "лошадь" : { "path" : "./probs/loshad.mp3", "delay": 30000 },
+  "тыменялюбишь" : { "path" : "./probs/lubish.mp3", "delay": 30000 }
 }
