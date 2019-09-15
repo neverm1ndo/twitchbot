@@ -5,12 +5,13 @@ const fs = require('fs');
 const Table = require('./lib/table.module.js');
 const Timestamp = require('./lib/timestamp.module.js');
 const Player = require('./lib/player.module.js');
+const Party = require('./lib/party.module.js');
 
 const TwitchBot = require('twitch-bot')
 const request = require('request');
 const conf = require('./configs/bot.config.js');
 
-let stream, _stream;
+let stream, _stream, partyGathering, party;
 let botStartDate = new Date();
 let environment = fs.readFileSync("environment.json");
 
@@ -102,6 +103,11 @@ Bot.on('error', err => {
 })
 
 Bot.on('message', chatter => {
+  if (partyGathering) {
+      if (chatter.message == '+') {
+        party.gathering(chatter);
+      }
+  }
   if (!chatter.mod) {
     dictionary.forEach((word)=> {
       if (chatter.message.includes(word)) {
@@ -130,6 +136,18 @@ Bot.on('message', chatter => {
       break;
     case '!uptime':
         uptime();
+      break;
+    case '!party':
+      if (chatter.mod) {
+        Bot.say(`OhMyDog ${chatter.username} собирает пати! + в чай, если хотите попасть в стак!`);
+        partyGathering = true;
+        party = new Party;
+      };
+      break;
+    case '!stopparty':
+      if (chatter.mod) {
+        partyGathering = false;
+      };
       break;
     }
 });
