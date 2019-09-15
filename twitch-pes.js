@@ -13,11 +13,12 @@ const conf = require('./configs/bot.config.js');
 
 let stream, _stream, partyGathering, party;
 let botStartDate = new Date();
-let environment = fs.readFileSync("environment.json");
+let environment = JSON.parse(fs.readFileSync("environment.json"));
 
-const Bot = new TwitchBot(JSON.parse(environment).bot);
+const Bot = new TwitchBot(environment.bot);
 
 const dictionary = JSON.parse(fs.readFileSync("./etc/banned.words.dict.json")).words;
+
 const sounds = JSON.parse(fs.readFileSync("./etc/sounds.library.json"));
 
 
@@ -33,7 +34,7 @@ function $timeout(message, index) {
 }
 
 function checkPrevilegies(chatter) {
-  return (chatter.mod || (chatter.username == environment.channels[0]));
+  return (chatter.mod || (chatter.username == environment.bot.channels[0]));
 }
 
 function autoPost() {

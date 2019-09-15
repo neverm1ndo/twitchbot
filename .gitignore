@@ -3,3 +3,4 @@ environment.json
 *.test.js
 probs/
 etc/
+spec/*.js

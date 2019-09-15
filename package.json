@@ -4,7 +4,7 @@
   "description": "bot 4 twitch chanell",
   "main": "index.js",
   "scripts": {
-    "test": "test",
+    "test": "jasmine",
     "start": "node twitch-pes.js"
   },
   "keywords": [
@@ -17,5 +17,8 @@
     "play-sound": "^1.1.3",
     "request": "^2.88.0",
     "twitch-bot": "^1.3.5"
+  },
+  "devDependencies": {
+    "jasmine": "^3.4.0"
   }
 }
