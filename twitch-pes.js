@@ -22,7 +22,7 @@ const sounds = JSON.parse(fs.readFileSync("./etc/sounds.library.json"));
 
 
 function links() {
-  Bot.say(`DOTABUFF: ${conf.links.dotabuff} || VK: ${conf.links.vk} || Узнать цены на буст: ${conf.links.site}`)
+  Bot.say(`DOTABUFF: ${conf.links.dotabuff} ||| VK: ${conf.links.vk} ||| Узнать цены на буст: ${conf.links.site}`)
 };
 
 function $timeout(message, index) {
@@ -35,8 +35,8 @@ function $timeout(message, index) {
 function autoPost() {
   setInterval(()=> {
     links();
-    $timeout('Подробный гайд от бустера на Ember Spirit: https://vk.com/@necessaryevil_boost-ember-spirit-kratkii-ekskurs-v-mir-legkih-25', 1);
-    $timeout(`Поддержи стримлера: ${conf.links.donationalerts}`, 2);
+    $timeout('OhMyDog Подробный гайд от бустера на Ember Spirit: https://vk.com/@necessaryevil_boost-ember-spirit-kratkii-ekskurs-v-mir-legkih-25', 1);
+    $timeout(`OhMyDog Поддержи стримлера: ${conf.links.donationalerts}`, 2);
   }, conf.interval);
 }
 
@@ -49,14 +49,14 @@ async function uptime() {
     let range = new Date(Date.now() - Date.parse(start));
     if (stream) {
       console.log(`> BOT | Success !uptime request: \x1b[32m${Timestamp.parse(range)}\x1b[0m | Данные получены с сервера Twitch`);
-      resolve(`Стрим идет уже ${Timestamp.parse(range)}`);
+      resolve(`OhMyDog Стрим идет уже ${Timestamp.parse(range)}`);
     } else {
       reject();
     }
   }).then(resolve => { Bot.say(resolve) })
     .catch(err => {
       console.log(`> BOT | Error !uptime request: \x1b[31m${err.message}\x1b[0m | Countdown from the start of the bot started...`);
-      Bot.say(`Стрим идет ${Timestamp.parse(Date.now() - Date.parse(botStartDate))} `);
+      Bot.say(`OhMyDog Стрим идет ${Timestamp.parse(Date.now() - Date.parse(botStartDate))} `);
      });
 }
 
@@ -104,9 +104,9 @@ Bot.on('error', err => {
 
 Bot.on('message', chatter => {
   if (partyGathering) {
-      if (chatter.message == '+') {
-        party.gathering(chatter);
-      }
+    if (chatter.message == '+') {
+      party.gathering(chatter);
+    }
   }
   if (!chatter.mod) {
     dictionary.forEach((word)=> {
@@ -116,17 +116,29 @@ Bot.on('message', chatter => {
       }
     });
   }
-  for (let command in sounds) {
+  if (!partyGathering) {
+    for (let command in sounds) {
       if (chatter.message == conf.prefix + command) {
         Player.play(sounds[command].path, sounds[command].delay);
       }
+    }
+  }
+  if (chatter.message.includes('!party')) {
+    if (chatter.mod) {
+      let amount = chatter.message.split(/\s/)[1];
+      if (!amount) amount = 1;
+      Bot.say(`OhMyDog ${chatter.username} собирает пати! + в чай, если хотите попасть в стак!`);
+      console.log(`> BOT | \x1b[1m[ PARTY ]\x1b[0m : ${chatter.username} initiated x${amount} party gathering:\n      | Chatters in queue:`);
+      partyGathering = true;
+      party = new Party([], amount);
+    };
   }
   switch (chatter.message) {
     case '!info':
         links();
       break;
     case '!mmr':
-      Bot.say('Текущий MMR на мейне: 6200 OhMyDog')
+      Bot.say('OhMyDog Текущий MMR на мейне: 6200')
       break;
     case '!donate':
       Bot.say(`OhMyDog Поддержи стримлера: ${conf.links.donationalerts}`)
@@ -137,16 +149,10 @@ Bot.on('message', chatter => {
     case '!uptime':
         uptime();
       break;
-    case '!party':
-      if (chatter.mod) {
-        Bot.say(`OhMyDog ${chatter.username} собирает пати! + в чай, если хотите попасть в стак!`);
-        partyGathering = true;
-        party = new Party;
-      };
-      break;
-    case '!stopparty':
+    case '!s':
       if (chatter.mod) {
         partyGathering = false;
+        Bot.say(`OhMyDog ${party.stack()} были избранны для пати!`);
       };
       break;
     }
