@@ -32,6 +32,10 @@ function $timeout(message, index) {
     }, conf.delay*index);
 }
 
+function checkPrevilegies(chatter) {
+  return (chatter.mod || (chatter.username == environment.channels[0]));
+}
+
 function autoPost() {
   setInterval(()=> {
     links();
@@ -108,11 +112,11 @@ Bot.on('message', chatter => {
       party.gathering(chatter);
     }
   }
-  if (!chatter.mod) {
+  if (!checkPrevilegies(chatter)) {
     dictionary.forEach((word)=> {
       if (chatter.message.includes(word)) {
         Bot.ban(chatter.username, 'Спам');
-        console.warn(`> BOT | Catched banned word \x1b[1m\x1b[31m${word}\x1b[0m! Banned user \x1b[1m\x1b[31m${chatter.username}\x1b[0m`);
+        console.warn(`> BOT | Catched banned word \x1b[1m\x1b[31m${word}\x1b[0m!\n      └───> Banned user \x1b[1m\x1b[31m${chatter.username}\x1b[0m`);
       }
     });
   }
@@ -124,7 +128,7 @@ Bot.on('message', chatter => {
     }
   }
   if (chatter.message.includes('!party')) {
-    if (chatter.mod) {
+    if (checkPrevilegies(chatter) && !partyGathering) {
       let amount = chatter.message.split(/\s/)[1];
       if (!amount) amount = 1;
       Bot.say(`OhMyDog ${chatter.username} собирает пати! + в чай, если хотите попасть в стак!`);
@@ -150,9 +154,9 @@ Bot.on('message', chatter => {
         uptime();
       break;
     case '!s':
-      if (chatter.mod) {
+      if (checkPrevilegies(chatter) && partyGathering) {
         partyGathering = false;
-        Bot.say(`OhMyDog ${party.stack()} были избранны для пати!`);
+        Bot.say(party.stack());
       };
       break;
     }
