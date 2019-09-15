@@ -15,7 +15,6 @@ module.exports = {
   },
   api: {
     id: '133676909', //Это твой ID на твиче
-    // id: '40022691',
     url : 'https://api.twitch.tv/helix/streams?user_id=',
   },
   player: {

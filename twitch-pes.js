@@ -116,8 +116,8 @@ Bot.on('message', chatter => {
   if (!checkPrevilegies(chatter)) {
     dictionary.forEach((word)=> {
       if (chatter.message.includes(word)) {
-        Bot.ban(chatter.username, 'Спам');
         console.warn(`> BOT | Catched banned word \x1b[1m\x1b[31m${word}\x1b[0m!\n      └───> Banned user \x1b[1m\x1b[31m${chatter.username}\x1b[0m`);
+        Bot.ban(chatter.username);
       }
     });
   }
@@ -132,7 +132,7 @@ Bot.on('message', chatter => {
     if (checkPrevilegies(chatter) && !partyGathering) {
       let amount = chatter.message.split(/\s/)[1];
       if (!amount) amount = 1;
-      Bot.say(`OhMyDog ${chatter.username} собирает пати! + в чай, если хотите попасть в стак!`);
+      Bot.say(`OhMyDog @${chatter.username} собирает пати! Пиши + в чай, если хотите попасть в стак!`);
       console.log(`> BOT | \x1b[1m[ PARTY ]\x1b[0m : ${chatter.username} initiated x${amount} party gathering:\n      | Chatters in queue:`);
       partyGathering = true;
       party = new Party([], amount);
@@ -168,6 +168,6 @@ Bot.on('subscription', event => {
 });
 
 Bot.on('ban', event => {
-  console.log(`> BOT | ${Timestamp.stamp()} Ban event info:`);
+  console.log(`> BOT | \x1b[31m\x1b[1m[ BAN ]\x1b[0m : ${Timestamp.stamp()} Ban event info:`);
   Table.build(event);
 });
