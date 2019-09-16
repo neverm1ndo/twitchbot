@@ -46,7 +46,7 @@ function autoPost() {
 
 async function uptime() {
   if (!stream) {
-    await _stream;
+    getStreamInfo();
   }
   return await new Promise((resolve, reject) => {
     let start = stream.started_at;
@@ -68,12 +68,7 @@ function roll() {
   return Math.floor(Math.random()*100);
 };
 
-Bot.on('join', channel => {
-  console.log(`Joined channel: \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
-  console.log(`> Start at \x1b[1m${Timestamp.stamp()}\x1b[0m`);
-  console.log(`> Manual mode ${conf.manual ? '\x1b[1m\x1b[31menabled\x1b[0m!': 'disabled'}`);
-  console.log(`> Player : \x1b[1m${conf.player.type}\x1b[0m\n`)
-  autoPost();
+function getStreamInfo() {
   _stream = new Promise((resolve, reject) => {
     process.stdout.write(`> BOT | Pending stream info from Twitch.tv ... `);
     let options = {
@@ -102,6 +97,15 @@ Bot.on('join', channel => {
     console.log( `| \x1b[31m\x1b[1mERROR\x1b[0m`);
     console.log( `      └───> \x1b[31mStream is offline or just started\x1b[0m\n`);
   });
+}
+
+Bot.on('join', channel => {
+  console.log(`Joined channel: \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
+  console.log(`> Start at \x1b[1m${Timestamp.stamp()}\x1b[0m`);
+  console.log(`> Manual mode ${conf.manual ? '\x1b[1m\x1b[31menabled\x1b[0m!': 'disabled'}`);
+  console.log(`> Player : \x1b[1m${conf.player.type}\x1b[0m\n`)
+  autoPost();
+  getStreamInfo();
 });
 
 Bot.on('error', err => {
@@ -176,16 +180,16 @@ Bot.on('ban', event => {
 
 if (conf.manual) {
   manual = new Manual();
-  manual.std.addListener('data', (c) => {
+  manual.std.addListener('data', async (c) => {
     c = c.toString().trim();
-    // console.log(c.split(`$say`)[1]);
     if (c.includes('$say')) {
       Bot.say(c.split(`$say`)[1].trim());
       manual.log(c);
     } else if (c.includes('$help')) {
-      manual.help();
-    }
-    else {
+      manual.help()
+    } else if (c.includes(`$streamstatus`)) {
+      getStreamInfo();
+    } else {
       manual.error();
     }
   });
