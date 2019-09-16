@@ -33,7 +33,7 @@ function $timeout(message, index) {
 }
 
 function checkPrevilegies(chatter) {
-  return (chatter.mod || (chatter.username == environment.bot.channels[0]));
+  return (chatter.mod || chatter.badges.streamer);
 }
 
 function autoPost() {
@@ -102,10 +102,6 @@ Bot.on('join', channel => {
     console.log( `| \x1b[31m\x1b[1mERROR\x1b[0m`);
     console.log( `      └───> \x1b[31mStream is offline or just started\x1b[0m\n`);
   });
-  if (conf.manual) {
-    manual = new Manual();
-    manual.start();
-  }
 });
 
 Bot.on('error', err => {
@@ -177,3 +173,20 @@ Bot.on('ban', event => {
   console.log(`> BOT | \x1b[31m\x1b[1m[ BAN ]\x1b[0m : ${Timestamp.stamp()} Ban event info:`);
   Table.build(event);
 });
+
+if (conf.manual) {
+  manual = new Manual();
+  manual.std.addListener('data', (c) => {
+    c = c.toString().trim();
+    // console.log(c.split(`$say`)[1]);
+    if (c.includes('$say')) {
+      Bot.say(c.split(`$say`)[1].trim());
+      manual.log(c);
+    } else if (c.includes('$help')) {
+      manual.help();
+    }
+    else {
+      manual.error();
+    }
+  });
+}

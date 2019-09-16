@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jasmine",
-    "start": "node twitch-pes.js"
+    "start": "node bot.js"
   },
   "keywords": [
     "bot"

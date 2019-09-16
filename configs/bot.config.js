@@ -2,7 +2,7 @@ module.exports = {
   interval : 600000, // глобальный кулдаун автоматического постинга ссылок <- 10min
   delay : 120000, // делей между различными ссылками <- 2 min
   prefix : '!',
-  manual : false,
+  manual : true,
   links : {
     vk: 'https://vk.com/necessaryevil0',
     donationalerts: 'https://www.donationalerts.com/r/necessaryevil0',
