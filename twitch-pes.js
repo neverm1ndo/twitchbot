@@ -6,23 +6,20 @@ const Table = require('./lib/table.module.js');
 const Timestamp = require('./lib/timestamp.module.js');
 const Player = require('./lib/player.module.js');
 const Party = require('./lib/party.module.js');
+const Manual = require('./lib/manual.module.js');
 
 const TwitchBot = require('twitch-bot')
 const request = require('request');
 const conf = require('./configs/bot.config.js');
 
-let stream, _stream, partyGathering, party;
+let stream, _stream, partyGathering, party, manual;
 let botStartDate = new Date();
 let environment = JSON.parse(fs.readFileSync("environment.json"));
 
 const Bot = new TwitchBot(environment.bot);
 
 const dictionary = JSON.parse(fs.readFileSync("./etc/banned.words.dict.json")).words;
-
 const sounds = JSON.parse(fs.readFileSync("./etc/sounds.library.json"));
-
-let stdin = process.openStdin();
-
 
 function links() {
   Bot.say(`DOTABUFF: ${conf.links.dotabuff} ||| VK: ${conf.links.vk} ||| Узнать цены на буст: ${conf.links.site}`)
@@ -72,9 +69,10 @@ function roll() {
 };
 
 Bot.on('join', channel => {
-  console.log(`Joined channel: ${channel} \x1b[32m⚫\x1b[0m`);
+  console.log(`Joined channel: \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
   console.log(`> Start at \x1b[1m${Timestamp.stamp()}\x1b[0m`);
-  console.log(`> Manual mode ${conf.manual ? 'enabled': 'disabled'}`);
+  console.log(`> Manual mode ${conf.manual ? '\x1b[1m\x1b[31menabled\x1b[0m!': 'disabled'}`);
+  console.log(`> Player : \x1b[1m${conf.player.type}\x1b[0m\n`)
   autoPost();
   _stream = new Promise((resolve, reject) => {
     process.stdout.write(`> BOT | Pending stream info from Twitch.tv ... `);
@@ -104,10 +102,15 @@ Bot.on('join', channel => {
     console.log( `| \x1b[31m\x1b[1mERROR\x1b[0m`);
     console.log( `      └───> \x1b[31mStream is offline or just started\x1b[0m\n`);
   });
+  if (conf.manual) {
+    manual = new Manual();
+    manual.start();
+  }
 });
 
 Bot.on('error', err => {
   console.log('\x1b[31m' + err.message + '\x1b[0m');
+  Table.build(err);
 })
 
 Bot.on('message', chatter => {
@@ -174,10 +177,3 @@ Bot.on('ban', event => {
   console.log(`> BOT | \x1b[31m\x1b[1m[ BAN ]\x1b[0m : ${Timestamp.stamp()} Ban event info:`);
   Table.build(event);
 });
-
-if (conf.manual) {
-  stdin.addListener("data", (d) => {
-    process.stdout.write(`> BOT | \x1b[1m[ MANUAL ]\x1b[0m : ${d.toString().trim()}\n`);
-    Bot.say(d.toString().trim());
-  });
-}
