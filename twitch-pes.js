@@ -21,6 +21,8 @@ const dictionary = JSON.parse(fs.readFileSync("./etc/banned.words.dict.json")).w
 
 const sounds = JSON.parse(fs.readFileSync("./etc/sounds.library.json"));
 
+let stdin = process.openStdin();
+
 
 function links() {
   Bot.say(`DOTABUFF: ${conf.links.dotabuff} ||| VK: ${conf.links.vk} ||| Узнать цены на буст: ${conf.links.site}`)
@@ -72,6 +74,7 @@ function roll() {
 Bot.on('join', channel => {
   console.log(`Joined channel: ${channel} \x1b[32m⚫\x1b[0m`);
   console.log(`> Start at \x1b[1m${Timestamp.stamp()}\x1b[0m`);
+  console.log(`> Manual mode ${conf.manual ? 'enabled': 'disabled'}`);
   autoPost();
   _stream = new Promise((resolve, reject) => {
     process.stdout.write(`> BOT | Pending stream info from Twitch.tv ... `);
@@ -171,3 +174,10 @@ Bot.on('ban', event => {
   console.log(`> BOT | \x1b[31m\x1b[1m[ BAN ]\x1b[0m : ${Timestamp.stamp()} Ban event info:`);
   Table.build(event);
 });
+
+if (conf.manual) {
+  stdin.addListener("data", (d) => {
+    process.stdout.write(`> BOT | \x1b[1m[ MANUAL ]\x1b[0m : ${d.toString().trim()}\n`);
+    Bot.say(d.toString().trim());
+  });
+}
