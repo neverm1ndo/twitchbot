@@ -7,6 +7,7 @@ const Timestamp = require('./lib/timestamp.module.js');
 const Player = require('./lib/player.module.js');
 const Party = require('./lib/party.module.js');
 const Manual = require('./lib/manual.module.js');
+const Loader = require('./lib/loader.module.js');
 
 const TwitchBot = require('twitch-bot')
 const request = require('request');
@@ -14,6 +15,7 @@ const conf = require('./configs/bot.config.js');
 
 let stream, _stream, partyGathering, party, manual;
 let botStartDate = new Date();
+let loader = new Loader();
 let environment = JSON.parse(fs.readFileSync("environment.json"));
 
 const Bot = new TwitchBot(environment.bot);
@@ -100,6 +102,7 @@ function getStreamInfo() {
 }
 
 Bot.on('join', channel => {
+  loader.stop();
   console.log(`Joined channel: \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
   console.log(`> Start at \x1b[1m${Timestamp.stamp()}\x1b[0m`);
   console.log(`> Manual mode ${conf.manual ? '\x1b[1m\x1b[31menabled\x1b[0m!': 'disabled'}`);
