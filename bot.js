@@ -35,7 +35,7 @@ function $timeout(message, index) {
 }
 
 function checkPrevilegies(chatter) {
-  return (chatter.mod || chatter.badges.broadcaster);
+  return (chatter.mod || (chatter.badges.broadcaster !== null));
 }
 
 function autoPost() {
