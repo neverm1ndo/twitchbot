@@ -65,7 +65,7 @@ Bot.on('message', async chatter => {
       }
     });
   }
-  if (!partyGathering) {
+  if (!partyGathering && chatter.subscriber) {
     for (let command in sounds) {
       if (chatter.message == conf.prefix + command) {
         Player.play(sounds[command].path, sounds[command].delay);
@@ -89,9 +89,6 @@ Bot.on('message', async chatter => {
     case '!mmr':
       Bot.say('OhMyDog Текущий MMR на мейне: 6200')
       break;
-    case '!donate':
-      Bot.say(`OhMyDog Поддержи стримлера: ${conf.links.donationalerts}`)
-      break;
     case '!roll':
       Bot.say(`${chatter.username} нароллил: ${RNG.randomize(0, 100)} BlessRNG`);
       break;
@@ -104,6 +101,12 @@ Bot.on('message', async chatter => {
         Bot.say(party.stack());
       };
       break;
+    case '!help' :
+      Bot.say('Вся помощь по командам в описаннии под стримом! OhMyDog');
+      break;
+    case '!donate':
+      bark.donate();
+      break;
     }
 });
 
@@ -114,7 +117,7 @@ Bot.on('subscription', event => {
 
 Bot.on('ban', event => {
   console.log(`> BOT | \x1b[31m\x1b[1m[ BAN ]\x1b[0m : ${Timestamp.stamp()} Ban event info:`);
-  Table.build(event);
+  Table.build(event, true);
 });
 
 if (conf.manual) {
