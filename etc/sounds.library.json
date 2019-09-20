@@ -11,5 +11,6 @@
   "тыменялюбишь" : { "path" : "./probs/lubish.mp3", "delay": 120000},
   "ку" : { "path" : "./probs/ky.mp3", "delay": 120000 },
   "12танго" : { "path" : "./probs/12.mp3", "delay": 120000 },
-  "ай" : { "path" : "./probs/aiaiai.mp3", "delay": 120000 }
+  "ай" : { "path" : "./probs/aiaiai.mp3", "delay": 120000 },
+  "конфликт" : { "path" : "./probs/konflikt.mp3", "delay": 120000 }
 }
