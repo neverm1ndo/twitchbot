@@ -27,7 +27,7 @@ const sounds = JSON.parse(fs.readFileSync("./etc/sounds.library.json"));
 const automessages = JSON.parse(fs.readFileSync("./etc/automessages.list.json")).m;
 
 const bark = new Bark(conf, automessages, Bot);
-const stream = new Stream({api: conf.api, headers: conf.headers});
+const stream = new Stream({api: conf.api, headers: conf.headers}, Bot);
 
 //*************************************************************************************************************//
 
@@ -92,7 +92,7 @@ Bot.on('message', async chatter => {
       Bot.say(`${chatter.username} нароллил: ${RNG.randomize(0, 100)} BlessRNG`);
       break;
     case '!uptime':
-      Bot.say(await stream.uptime());
+      stream.uptime();
       break;
     case '!s':
       if (CheckPrevilegies(chatter) && partyGathering) {
