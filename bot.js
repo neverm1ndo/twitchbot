@@ -13,7 +13,6 @@ const Bark = require('./lib/bark.module.js');
 const Stream = require('./lib/stream.module.js');
 
 const TwitchBot = require('twitch-bot')
-const request = require('request');
 const conf = require('./configs/bot.config.js');
 
 let partyGathering, party, manual;
