@@ -106,6 +106,10 @@ Bot.on('message', async chatter => {
     case '!donate':
       bark.donate();
       break;
+    case '!players':
+      if (party.players) { Bot.say(`Сейчас со стримером играют: ${party.players}`);}
+      else { Bot.say("Пати со стримером еще не собиралось.")}
+      break;
     }
 });
 
