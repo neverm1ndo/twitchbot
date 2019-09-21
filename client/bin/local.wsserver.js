@@ -28,22 +28,15 @@ const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws, req) => {
   console.log('Connected:', req.connection.remoteAddress);
-  ws.on('message', message => {
-    console.log(`Received message from ${req.connection.remoteAddress} => ${message}`)
-  })
-  ws.send('WS: Successfully conected to local WS server')
+  ws.on('message', function incoming(message) {
+    console.log('received: %s', message);
+    switch (message) {
+      case 'conf':
+        ws.send(JSON.strigify(conf.bot));
+        break;
+      }
+  });
+  ws.send(JSON.stringify({"e": "log", "msg": "WS: Successfully conected to local WS server"}));
 });
 
 server.listen(3000);
-
-server.on('upgrade', function upgrade(request, socket, head) {
-  const pathname = url.parse(request.url).pathname;
-
-  if (pathname === '/foo') {
-    wss.handleUpgrade(request, socket, head, function done(ws) {
-      wss1.emit('connection', ws, request);
-    });
-  } else{
-     socket.destroy();
-  }
-});
