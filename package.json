@@ -1,5 +1,5 @@
 {
-  "name": "twich-pes",
+  "name": " evildog",
   "version": "1.0.0",
   "description": "bot 4 twitch chanell",
   "main": "index.js",
@@ -17,7 +17,8 @@
     "mp3-duration": "^1.1.0",
     "play-sound": "^1.1.3",
     "request": "^2.88.0",
-    "twitch-bot": "^1.3.5"
+    "twitch-bot": "^1.3.5",
+    "ws": "^7.1.2"
   },
   "devDependencies": {
     "jasmine": "^3.4.0"

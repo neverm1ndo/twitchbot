@@ -15,6 +15,10 @@ const Stream = require('./lib/stream.module.js');
 const TwitchBot = require('twitch-bot')
 const conf = require('./configs/bot.config.js');
 
+const Client = require('./lib/ws.client.module.js');
+
+let client = new Client('ws://localhost:3000');
+
 let partyGathering, party, manual;
 let botStartDate = new Date();
 // let loader = new Loader();
