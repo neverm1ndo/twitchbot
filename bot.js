@@ -32,7 +32,7 @@ const stream = new Stream({api: conf.api, headers: conf.headers}, Bot);
 //*************************************************************************************************************//
 
 function CheckPrevilegies(chatter) {
-  return (chatter.mod || (chatter.badges.broadcaster !== null));
+  return (chatter.mod || (chatter.username == environment.bot.channels[0]));
 }
 
 Bot.on('join', channel => {
@@ -75,12 +75,13 @@ Bot.on('message', async chatter => {
     if (CheckPrevilegies(chatter) && !partyGathering) {
       let amount = chatter.message.split(/\s/)[1];
       if (!amount) amount = 1;
-      Bot.say(`OhMyDog @${chatter.username} собирает пати! Пиши + в чай, если хотите попасть в стак!`);
+      Bot.say(`OhMyDog @${chatter.username} собирает пати! Пишите + в чай, если хотите попасть в стак!`);
       console.log(`> BOT | \x1b[1m[ PARTY ]\x1b[0m : ${chatter.username} initiated x${amount} party gathering:\n      | Chatters in queue:`);
       partyGathering = true;
       party = new Party([], amount);
     };
   }
+  console.log(chatter);
   switch (chatter.message) {
     case '!info':
         links();
