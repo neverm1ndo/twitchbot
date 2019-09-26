@@ -2,5 +2,6 @@ node_modules/
 environment.json
 *.test.js
 probs/
-etc/
+etc/banned.words.dict.json
+etc/sounds.library.json
 spec/*.js
