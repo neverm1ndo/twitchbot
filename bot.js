@@ -81,6 +81,7 @@ Bot.on('message', async chatter => {
       party = new Party([], amount);
     };
   }
+  // console.log(chatter);
   switch (chatter.message) {
     case '!info':
         links();
