@@ -84,7 +84,7 @@ Bot.on('message', async chatter => {
   // console.log(chatter);
   switch (chatter.message) {
     case '!info':
-        links();
+        bark.links();
       break;
     case '!mmr':
       Bot.say('OhMyDog Текущий MMR на мейне: 6200')
