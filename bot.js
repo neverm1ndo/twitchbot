@@ -64,7 +64,7 @@ Bot.on('message', async chatter => {
       }
     });
   }
-  if (!partyGathering && chatter.subscriber) {
+  if (!partyGathering) {
     for (let command in sounds) {
       if (chatter.message == conf.prefix + command) {
         Player.play(sounds[command].path, sounds[command].delay);
@@ -133,7 +133,7 @@ if (conf.manual) {
       manual.log(c);
     } else if (c.includes('$help')) {
       manual.help()
-    } else if (c.includes(`$streamstatus`)) {
+    } else if (c.includes(`$status`) || c.includes(`$refresh`)) {
       stream.info();
     } else {
       manual.error();
