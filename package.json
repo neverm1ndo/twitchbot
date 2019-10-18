@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jasmine",
-    "start": "node bot.js"
+    "start": "node bot.js > log.txt"
   },
   "keywords": [
     "bot"
