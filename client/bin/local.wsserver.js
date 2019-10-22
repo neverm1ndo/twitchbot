@@ -32,7 +32,7 @@ wss.on('connection', (ws, req) => {
     console.log('received: %s', message);
     switch (message) {
       case 'conf':
-        ws.send(JSON.strigify(conf.bot));
+        ws.send(JSON.stringify({"e": "conf", "msg" : conf}));
         break;
       }
   });

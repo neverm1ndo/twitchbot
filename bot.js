@@ -21,16 +21,16 @@ let client = new Client('ws://localhost:3000');
 
 let partyGathering, party, manual;
 let botStartDate = new Date();
-// let loader = new Loader();
+let loader = new Loader();
 let environment = JSON.parse(fs.readFileSync("environment.json"));
 
 const Bot = new TwitchBot(environment.bot);
 
 const dictionary = JSON.parse(fs.readFileSync("./etc/banned.words.dict.json")).words;
 const sounds = JSON.parse(fs.readFileSync("./etc/sounds.library.json"));
-const automessages = JSON.parse(fs.readFileSync("./etc/automessages.list.json")).m;
+// const automessages = JSON.parse(fs.readFileSync("./etc/automessages.list.json")).m;
 
-const bark = new Bark(conf, automessages, Bot);
+// const bark = new Bark(conf, automessages, Bot);
 const stream = new Stream({api: conf.api, headers: conf.headers}, Bot);
 
 //*************************************************************************************************************//
@@ -40,12 +40,12 @@ function CheckPrevilegies(chatter) {
 }
 
 Bot.on('join', channel => {
-  // loader.stop();
+  loader.stop();
   console.log(`Joined channel: \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
   console.log(`> Start at \x1b[1m${Timestamp.stamp()}\x1b[0m`);
   console.log(`> Manual mode ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
   console.log(`> Player : \x1b[1m${conf.player.type}\x1b[0m\n`)
-  bark.start();
+ // bark.start();
   stream.info();
 });
 
@@ -55,6 +55,8 @@ Bot.on('error', err => {
 })
 
 Bot.on('message', async chatter => {
+console.log(chatter);
+  client.send(JSON.stringify(chatter));
   if (partyGathering) {
     if (chatter.message == '+') {
       party.gathering(chatter);
