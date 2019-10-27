@@ -51,6 +51,7 @@ Bot.on('error', err => {
 })
 
 Bot.on('message', async chatter => {
+  console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m ${Timestamp.stamp()} \x1b[0m(${chatter.mod?'moderator':''}) \x1b[0m\x1b[34m${chatter.username}\x1b[0m: ${chatter.message}`)
   if (partyGathering) {
     if (chatter.message == '+') {
       party.gathering(chatter);

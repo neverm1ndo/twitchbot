@@ -4,8 +4,8 @@ module.exports = {
   prefix : '!',
   manual : true,
   links : {
-    vk: 'https://vk.com/necessaryevil0',
-    donationalerts: 'https://www.donationalerts.com/r/necessaryevil0',
+    vk: 'https://vk.com/diktoor',
+    donationalerts: 'https://www.donationalerts.com/r/Diktor__',
     site: 'https://necessaryboost.pro/',
     dotabuff: 'https://www.dotabuff.com/players/120494497',
   },
