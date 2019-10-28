@@ -35,6 +35,31 @@ const stream = new Stream({api: conf.api, headers: conf.headers}, Bot);
 
 Logo();
 
+function CLR(hex, str) {
+  switch (hex) {
+    case '#8A2BE2':
+      return `\x1b[35m\x1b[2m${str}\x1b[0m`;
+      break;
+    case '#0000FF':
+      return `\x1b[34m${str}\x1b[0m`;
+      break;
+    case '#C606A0':
+      return `\x1b[35m${str}\x1b[0m`;
+      break;
+    case '#FF0000':
+      return `\x1b[31m${str}\x1b[0m`;
+      break;
+    case '#00FF00':
+      return `\x1b[32m${str}\x1b[0m`;
+      break;
+    case '#B22222':
+      return `\x1b[31m\x1b[2m${str}\x1b[0m`;
+      break;
+    default:
+      return `\x1b[31m${str}\x1b[0m`;
+  }
+}
+
 function ParseBadges(badges) {
   if (badges !== 'No badges' && badges !== null && badges !== undefined) {
     return Object.keys(badges);
@@ -52,6 +77,7 @@ Bot.on('join', channel => {
   console.log(`Joined channel: \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
   console.log(`> Start at \x1b[1m${Timestamp.stamp()}\x1b[0m`);
   console.log(`> Manual mode ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
+  console.log(`> Silent mode ${conf.manual ? '\x1b[1m\x1b[35menabled\x1b[0m!': 'disabled'}`);
   console.log(`> Chat mode ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
   console.log(`> Player : \x1b[1m${conf.player.type}\x1b[0m\n`)
   bark.start();
@@ -64,74 +90,77 @@ Bot.on('error', err => {
 })
 
 Bot.on('message', async chatter => {
-  if (conf.chat) console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m| ${ParseBadges(chatter.badges)} | \x1b[0m\x1b[34m\x1b[1m${chatter.username}\x1b[0m: ${chatter.message}`);
-  if (partyGathering) {
-    if (chatter.message == '+') {
-      party.gathering(chatter);
+  // console.log(chatter.color);
+  if (conf.chat) console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m| ${ParseBadges(chatter.badges)} | \x1b[0m${CLR(chatter.color, chatter.username)}: ${chatter.message}`);
+  if (!conf.silent) {
+    if (partyGathering) {
+      if (chatter.message == '+') {
+        party.gathering(chatter);
+      }
     }
-  }
-  if (!CheckPrevilegies(chatter)) {
-    dictionary.forEach((word)=> {
-      if (chatter.message.includes(word)) {
-        console.warn(`> BOT | Catched banned word \x1b[1m\x1b[31m${word}\x1b[0m!\n      └───> Banned user \x1b[1m\x1b[31m${chatter.username}\x1b[0m`);
-        Bot.ban(chatter.username);
+    if (!CheckPrevilegies(chatter)) {
+      dictionary.forEach((word)=> {
+        if (chatter.message.includes(word)) {
+          console.warn(`> BOT | Catched banned word \x1b[1m\x1b[31m${word}\x1b[0m!\n      └───> Banned user \x1b[1m\x1b[31m${chatter.username}\x1b[0m`);
+            Bot.ban(chatter.username);
+          }
+        });
+      }
+      if (!partyGathering) {
+        for (let command in sounds) {
+          if (chatter.message == conf.prefix + command) {
+            Player.play(sounds[command].path, sounds[command].delay);
+          }
+        }
+      }
+      if (chatter.message.includes('!party')) {
+        if (CheckPrevilegies(chatter) && !partyGathering) {
+          let amount = chatter.message.split(/\s/)[1];
+          if (!amount) amount = 1;
+          Bot.say(`OhMyDog @${chatter.username} собирает пати! Пишите + в чай, если хотите попасть в стак!`);
+          console.log(`> BOT | \x1b[1m[ PARTY ]\x1b[0m : ${chatter.username} initiated x${amount} party gathering:\n      | Chatters in queue:`);
+            partyGathering = true;
+            party = new Party([], amount);
+          };
+        }
+        switch (chatter.message) {
+          case '!info':
+          bark.links();
+          break;
+          case '!mmr':
+          Bot.say('OhMyDog Текущий MMR на мейне: 6200')
+          break;
+          case '!roll':
+          Bot.say(`${chatter.username} нароллил: ${RNG.randomize(0, 100)} BlessRNG`);
+          break;
+          case '!uptime':
+          stream.uptime();
+          break;
+          case '!s':
+          if (CheckPrevilegies(chatter) && partyGathering) {
+            partyGathering = false;
+            Bot.say(party.stack());
+          };
+          break;
+          case '!help' :
+          Bot.say('Вся помощь по командам в описаннии под стримом! OhMyDog');
+          break;
+          case '!donate':
+          bark.donate();
+          break;
+          case '!players':
+          if (party.players) { Bot.say(`Сейчас со стримером играют: ${party.players}`);}
+          else { Bot.say("Пати со стримером еще не собиралось.")}
+          break;
+        }
+        Bot.on('subscription', event => {
+          Bot.say(`${event.login}, спасибо за подписку, братик! PogChamp`);
+          Table.build(event, true);
+        });
       }
     });
-  }
-  if (!partyGathering) {
-    for (let command in sounds) {
-      if (chatter.message == conf.prefix + command) {
-        Player.play(sounds[command].path, sounds[command].delay);
-      }
-    }
-  }
-  if (chatter.message.includes('!party')) {
-    if (CheckPrevilegies(chatter) && !partyGathering) {
-      let amount = chatter.message.split(/\s/)[1];
-      if (!amount) amount = 1;
-      Bot.say(`OhMyDog @${chatter.username} собирает пати! Пишите + в чай, если хотите попасть в стак!`);
-      console.log(`> BOT | \x1b[1m[ PARTY ]\x1b[0m : ${chatter.username} initiated x${amount} party gathering:\n      | Chatters in queue:`);
-      partyGathering = true;
-      party = new Party([], amount);
-    };
-  }
-  // console.log(chatter);
-  switch (chatter.message) {
-    case '!info':
-        bark.links();
-      break;
-    case '!mmr':
-      Bot.say('OhMyDog Текущий MMR на мейне: 6200')
-      break;
-    case '!roll':
-      Bot.say(`${chatter.username} нароллил: ${RNG.randomize(0, 100)} BlessRNG`);
-      break;
-    case '!uptime':
-      stream.uptime();
-      break;
-    case '!s':
-      if (CheckPrevilegies(chatter) && partyGathering) {
-        partyGathering = false;
-        Bot.say(party.stack());
-      };
-      break;
-    case '!help' :
-      Bot.say('Вся помощь по командам в описаннии под стримом! OhMyDog');
-      break;
-    case '!donate':
-      bark.donate();
-      break;
-    case '!players':
-      if (party.players) { Bot.say(`Сейчас со стримером играют: ${party.players}`);}
-      else { Bot.say("Пати со стримером еще не собиралось.")}
-      break;
-    }
-});
 
-Bot.on('subscription', event => {
-  Bot.say(`${event.login}, спасибо за подписку, братик! PogChamp`);
-  Table.build(event, true);
-});
+
 
 Bot.on('ban', event => {
   console.log(`> BOT | \x1b[31m\x1b[1m[ BAN ]\x1b[0m : ${Timestamp.stamp()} Ban event info:`);

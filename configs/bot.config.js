@@ -4,6 +4,7 @@ module.exports = {
   prefix : '!',
   manual : true,
   chat: true,
+  silent: true,
   links : {
     vk: 'https://vk.com/diktoor',
     donationalerts: 'https://www.donationalerts.com/r/Diktor__',
