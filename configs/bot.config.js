@@ -3,6 +3,7 @@ module.exports = {
   delay : 400000, // делей между различными ссылками <- 2 min
   prefix : '!',
   manual : true,
+  chat: true,
   links : {
     vk: 'https://vk.com/diktoor',
     donationalerts: 'https://www.donationalerts.com/r/Diktor__',

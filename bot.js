@@ -11,13 +11,14 @@ const Loader = require('./lib/loader.module.js');
 const RNG = require('./lib/rng.module.js');
 const Bark = require('./lib/bark.module.js');
 const Stream = require('./lib/stream.module.js');
+const Logo = require('./lib/start.module.js');
 
 const TwitchBot = require('twitch-bot')
 const conf = require('./configs/bot.config.js');
 
 let partyGathering, party, manual;
 let botStartDate = new Date();
-//let loader = new Loader();
+let loader = new Loader();
 let environment = JSON.parse(fs.readFileSync("environment.json"));
 
 const Bot = new TwitchBot(environment.bot);
@@ -31,15 +32,27 @@ const stream = new Stream({api: conf.api, headers: conf.headers}, Bot);
 
 //*************************************************************************************************************//
 
+
+Logo();
+
+function ParseBadges(badges) {
+  if (badges !== 'No badges' && badges !== null && badges !== undefined) {
+    return Object.keys(badges);
+  } else {
+    return '';
+  }
+}
+
 function CheckPrevilegies(chatter) {
   return (chatter.mod || (chatter.username == environment.bot.channels[0]));
 }
 
 Bot.on('join', channel => {
-  //loader.stop();
+  loader.stop();
   console.log(`Joined channel: \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
   console.log(`> Start at \x1b[1m${Timestamp.stamp()}\x1b[0m`);
   console.log(`> Manual mode ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
+  console.log(`> Chat mode ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
   console.log(`> Player : \x1b[1m${conf.player.type}\x1b[0m\n`)
   bark.start();
   stream.info();
@@ -51,7 +64,7 @@ Bot.on('error', err => {
 })
 
 Bot.on('message', async chatter => {
-  console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m ${Timestamp.stamp()} \x1b[0m(${chatter.mod?'moderator':''}) \x1b[0m\x1b[34m${chatter.username}\x1b[0m: ${chatter.message}`)
+  if (conf.chat) console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m| ${ParseBadges(chatter.badges)} | \x1b[0m\x1b[34m\x1b[1m${chatter.username}\x1b[0m: ${chatter.message}`);
   if (partyGathering) {
     if (chatter.message == '+') {
       party.gathering(chatter);
