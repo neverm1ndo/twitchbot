@@ -23,7 +23,7 @@ let environment = JSON.parse(fs.readFileSync("environment.json"));
 
 const Bot = new TwitchBot(environment.bot);
 
-const dictionary = JSON.parse(fs.readFileSync("./etc/banned.words.dict.json")).words;
+const dictionary = JSON.parse(fs.readFileSync("./etc/banned.words.dict.json"));
 const sounds = JSON.parse(fs.readFileSync("./etc/sounds.library.json"));
 const automessages = JSON.parse(fs.readFileSync("./etc/automessages.list.json")).m;
 
@@ -31,34 +31,7 @@ const bark = new Bark(conf, automessages, Bot);
 const stream = new Stream({api: conf.api, headers: conf.headers}, Bot);
 
 //*************************************************************************************************************//
-
-
 Logo();
-
-function CLR(hex, str) {
-  switch (hex) {
-    case '#8A2BE2':
-      return `\x1b[35m\x1b[2m${str}\x1b[0m`;
-      break;
-    case '#0000FF':
-      return `\x1b[34m${str}\x1b[0m`;
-      break;
-    case '#C606A0':
-      return `\x1b[35m${str}\x1b[0m`;
-      break;
-    case '#FF0000':
-      return `\x1b[31m${str}\x1b[0m`;
-      break;
-    case '#00FF00':
-      return `\x1b[32m${str}\x1b[0m`;
-      break;
-    case '#B22222':
-      return `\x1b[31m\x1b[2m${str}\x1b[0m`;
-      break;
-    default:
-      return `\x1b[31m${str}\x1b[0m`;
-  }
-}
 
 function ParseBadges(badges) {
   if (badges !== 'No badges' && badges !== null && badges !== undefined) {
@@ -77,7 +50,7 @@ Bot.on('join', channel => {
   console.log(`Joined channel: \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
   console.log(`> Start at \x1b[1m${Timestamp.stamp()}\x1b[0m`);
   console.log(`> Manual mode ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
-  console.log(`> Silent mode ${conf.manual ? '\x1b[1m\x1b[35menabled\x1b[0m!': 'disabled'}`);
+  console.log(`> Silent mode ${conf.silent ? '\x1b[1m\x1b[35menabled\x1b[0m!': 'disabled'}`);
   console.log(`> Chat mode ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
   console.log(`> Player : \x1b[1m${conf.player.type}\x1b[0m\n`)
   bark.start();
@@ -91,7 +64,7 @@ Bot.on('error', err => {
 
 Bot.on('message', async chatter => {
   // console.log(chatter.color);
-  if (conf.chat) console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m| ${ParseBadges(chatter.badges)} | \x1b[0m${CLR(chatter.color, chatter.username)}: ${chatter.message}`);
+  if (conf.chat) console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m\x1b[47m\x1b[30m ${ParseBadges(chatter.badges)} \x1b[0m \x1b[1m${chatter.username}\x1b[0m: ${chatter.message}`);
   if (!conf.silent) {
     if (partyGathering) {
       if (chatter.message == '+') {
@@ -99,11 +72,17 @@ Bot.on('message', async chatter => {
       }
     }
     if (!CheckPrevilegies(chatter)) {
-      dictionary.forEach((word)=> {
+      dictionary.words.forEach((word)=> {
         if (chatter.message.includes(word)) {
           console.warn(`> BOT | Catched banned word \x1b[1m\x1b[31m${word}\x1b[0m!\n      └───> Banned user \x1b[1m\x1b[31m${chatter.username}\x1b[0m`);
             Bot.ban(chatter.username);
           }
+        });
+      dictionary.timeouts.forEach((word)=> {
+        if (chatter.message.includes(word)) {
+          console.warn(`> BOT | Catched banned word \x1b[1m\x1b[33m${word}\x1b[0m!\n      └───> Timeouted user \x1b[1m\x1b[33m${chatter.username}\x1b[0m for 50sec`);
+            Bot.timeout(chatter.username);
+          };
         });
       }
       if (!partyGathering) {
@@ -164,6 +143,10 @@ Bot.on('message', async chatter => {
 
 Bot.on('ban', event => {
   console.log(`> BOT | \x1b[31m\x1b[1m[ BAN ]\x1b[0m : ${Timestamp.stamp()} Ban event info:`);
+  Table.build(event, true);
+});
+Bot.on('timeout', event => {
+  console.log(`> BOT | \x1b[33m\x1b[1m[ TIMEOUT ]\x1b[0m : ${Timestamp.stamp()} Timeout event info:`);
   Table.build(event, true);
 });
 
