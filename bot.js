@@ -16,6 +16,10 @@ const Logo = require('./lib/start.module.js');
 const TwitchBot = require('twitch-bot')
 const conf = require('./configs/bot.config.js');
 
+const Server = require('./lib/ws.server.module.js');
+
+let server = new Server(3000);
+
 let partyGathering, party, manual;
 let botStartDate = new Date();
 let loader = new Loader();
@@ -25,9 +29,9 @@ const Bot = new TwitchBot(environment.bot);
 
 const dictionary = JSON.parse(fs.readFileSync("./etc/banned.words.dict.json"));
 const sounds = JSON.parse(fs.readFileSync("./etc/sounds.library.json"));
-const automessages = JSON.parse(fs.readFileSync("./etc/automessages.list.json")).m;
+// const automessages = JSON.parse(fs.readFileSync("./etc/automessages.list.json")).m;
 
-const bark = new Bark(conf, automessages, Bot);
+// const bark = new Bark(conf, automessages, Bot);
 const stream = new Stream({api: conf.api, headers: conf.headers}, Bot);
 
 //*************************************************************************************************************//
@@ -53,7 +57,7 @@ Bot.on('join', channel => {
   console.log(`> Silent mode ${conf.silent ? '\x1b[1m\x1b[35menabled\x1b[0m!': 'disabled'}`);
   console.log(`> Chat mode ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
   console.log(`> Player : \x1b[1m${conf.player.type}\x1b[0m\n`)
-  bark.start();
+ // bark.start();
   stream.info();
 });
 
@@ -70,7 +74,8 @@ Bot.on('message', async chatter => {
       if (chatter.message == '+') {
         party.gathering(chatter);
       }
-    }
+   }
+  Server.send(JSON.stringify(chatter));
     if (!CheckPrevilegies(chatter)) {
       dictionary.words.forEach((word)=> {
         if (chatter.message.includes(word)) {
