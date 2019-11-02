@@ -81,7 +81,7 @@ Bot.on('message', async chatter => {
       dictionary.timeouts.forEach((word)=> {
         if (chatter.message.includes(word)) {
           console.warn(`> BOT | Catched banned word \x1b[1m\x1b[33m${word}\x1b[0m!\n      └───> Timeouted user \x1b[1m\x1b[33m${chatter.username}\x1b[0m for 50sec`);
-            Bot.timeout(chatter.username);
+//            Bot.timeout(chatter.username);
           };
         });
       }
