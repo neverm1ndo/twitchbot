@@ -1,6 +1,12 @@
 'use strict'
 
 const fs = require('fs');
+const WebSocket = require('ws');
+const Server = require('./lib/ws.server.module.js');
+
+const URL = "ws://localhost:3000/";
+const ws = new WebSocket(URL);
+let server = new Server(3000);
 
 const Table = require('./lib/table.module.js');
 const Timestamp = require('./lib/timestamp.module.js');
@@ -16,10 +22,6 @@ const Logo = require('./lib/start.module.js');
 const TwitchBot = require('twitch-bot')
 const conf = require('./configs/bot.config.js');
 
-const Server = require('./lib/ws.server.module.js');
-
-let server = new Server(3000);
-
 let partyGathering, party, manual;
 let botStartDate = new Date();
 let loader = new Loader();
@@ -29,12 +31,12 @@ const Bot = new TwitchBot(environment.bot);
 
 const dictionary = JSON.parse(fs.readFileSync("./etc/banned.words.dict.json"));
 const sounds = JSON.parse(fs.readFileSync("./etc/sounds.library.json"));
-// const automessages = JSON.parse(fs.readFileSync("./etc/automessages.list.json")).m;
+const automessages = JSON.parse(fs.readFileSync("./etc/automessages.list.json")).m;
 
-// const bark = new Bark(conf, automessages, Bot);
+const bark = new Bark(conf, automessages, Bot);
 const stream = new Stream({api: conf.api, headers: conf.headers}, Bot);
 
-//*************************************************************************************************************//
+//***************************************************************************************//
 Logo();
 
 function ParseBadges(badges) {
@@ -45,6 +47,10 @@ function ParseBadges(badges) {
   }
 }
 
+function wsmessage(e, message) {
+  return JSON.stringify({e: e, msg: message});
+}
+
 function CheckPrevilegies(chatter) {
   return (chatter.mod || (chatter.username == environment.bot.channels[0]));
 }
@@ -52,13 +58,19 @@ function CheckPrevilegies(chatter) {
 Bot.on('join', channel => {
   loader.stop();
   console.log(`Joined channel: \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
-  console.log(`> Start at \x1b[1m${Timestamp.stamp()}\x1b[0m`);
-  console.log(`> Manual mode ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
-  console.log(`> Silent mode ${conf.silent ? '\x1b[1m\x1b[35menabled\x1b[0m!': 'disabled'}`);
-  console.log(`> Chat mode ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
-  console.log(`> Player : \x1b[1m${conf.player.type}\x1b[0m\n`)
- // bark.start();
+  console.log(`> Start at      \x1b[1m${Timestamp.stamp()}\x1b[0m`);
+  console.log(`> Manual mode   ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
+  console.log(`> WEB view      ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m on ws://localhost:3000':'\x1b[31mdisabled\x1b[0m'}`);
+  console.log(`> Silent mode   ${conf.silent ? '\x1b[1m\x1b[35menabled\x1b[0m!': 'disabled'}`);
+  console.log(`> Chat mode     ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
+  console.log(`> Player :      \x1b[1m${conf.player.type}\x1b[0m\n`)
+  bark.start();
   stream.info();
+  if (conf.web) {
+    ws.on('open', function open() {
+      ws.send(wsmessage("connect","CLI/SERV connection established"));
+    });
+  };
 });
 
 Bot.on('error', err => {
@@ -67,15 +79,14 @@ Bot.on('error', err => {
 })
 
 Bot.on('message', async chatter => {
-  // console.log(chatter.color);
-  if (conf.chat) console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m\x1b[47m\x1b[30m ${ParseBadges(chatter.badges)} \x1b[0m \x1b[1m${chatter.username}\x1b[0m: ${chatter.message}`);
+  if (conf.web) ws.send(wsmessage('log', chatter.message));
+  if (conf.chat) { console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m\x1b[47m\x1b[30m ${ParseBadges(chatter.badges)} \x1b[0m \x1b[1m${chatter.username}\x1b[0m: ${chatter.message}`); };
   if (!conf.silent) {
     if (partyGathering) {
       if (chatter.message == '+') {
         party.gathering(chatter);
       }
    }
-  Server.send(JSON.stringify(chatter));
     if (!CheckPrevilegies(chatter)) {
       dictionary.words.forEach((word)=> {
         if (chatter.message.includes(word)) {
