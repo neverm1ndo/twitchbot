@@ -120,9 +120,9 @@ Bot.on('message', async chatter => {
       }
       if (chatter.message.includes(conf.prefix + 'yt')) {
         let link = chatter.message.split(/\s/)[1];
-        // if (CheckSub(ParseBadges(chatter.badges))) {
+        if (CheckSub(ParseBadges(chatter.badges))) {
           Player.video(link, chatter.username);
-        // }
+        }
       };
       if (chatter.message.includes('!party')) {
         if (CheckPrevilegies(chatter) && !partyGathering) {
