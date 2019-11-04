@@ -5,8 +5,8 @@ const WebSocket = require('ws');
 const Server = require('./lib/ws.server.module.js');
 
 const URL = "ws://localhost:3000/";
-const ws = new WebSocket(URL);
-let server = new Server(3000);
+// const ws = new WebSocket(URL);
+// let server = new Server(3000);
 
 const Table = require('./lib/table.module.js');
 const Timestamp = require('./lib/timestamp.module.js');
@@ -76,11 +76,11 @@ Bot.on('join', channel => {
   console.log(`> Player :      \x1b[1m${conf.player.type}\x1b[0m\n`)
   bark.start();
   stream.info();
-  if (conf.web) {
-    ws.on('open', function open() {
-      ws.send(wsmessage("connect","CLI/SERV connection established"));
-    });
-  };
+  // if (conf.web) {
+  //   ws.on('open', function open() {
+  //     ws.send(wsmessage("connect","CLI/SERV connection established"));
+  //   });
+  // };
 });
 
 Bot.on('error', err => {
@@ -89,7 +89,7 @@ Bot.on('error', err => {
 })
 
 Bot.on('message', async chatter => {
-  if (conf.web) ws.send(wsmessage('log', chatter.message));
+  // if (conf.web) ws.send(wsmessage('log', chatter.message));
   if (conf.chat) { console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m\x1b[47m\x1b[30m ${ParseBadges(chatter.badges)} \x1b[0m \x1b[1m${chatter.username}\x1b[0m: ${chatter.message}`); };
   if (!conf.silent) {
     if (partyGathering) {

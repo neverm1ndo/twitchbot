@@ -5,7 +5,7 @@ module.exports = {
   manual : true,
   chat: true,
   silent: false,
-  web: true,
+  web: false,
   links : {
     vk: 'https://vk.com/diktoor',
     donationalerts: 'https://www.donationalerts.com/r/Diktor__',
