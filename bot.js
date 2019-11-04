@@ -55,6 +55,16 @@ function CheckPrevilegies(chatter) {
   return (chatter.mod || (chatter.username == environment.bot.channels[0]));
 }
 
+function CheckSub(badges) {
+  let isSub = false;
+  badges.forEach((badge) => {
+    if (badge == "founder" || badge == "subscriber" || badge =="broadcaster") {
+      isSub = true;
+    }
+  });
+  return isSub;
+};
+
 Bot.on('join', channel => {
   loader.stop();
   console.log(`Joined channel: \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
@@ -108,6 +118,12 @@ Bot.on('message', async chatter => {
           }
         }
       }
+      if (chatter.message.includes(conf.prefix + 'yt')) {
+        let link = chatter.message.split(/\s/)[1];
+        // if (CheckSub(ParseBadges(chatter.badges))) {
+          Player.video(link, chatter.username);
+        // }
+      };
       if (chatter.message.includes('!party')) {
         if (CheckPrevilegies(chatter) && !partyGathering) {
           let amount = chatter.message.split(/\s/)[1];
@@ -120,36 +136,36 @@ Bot.on('message', async chatter => {
         }
         switch (chatter.message) {
           case '!info':
-          bark.links();
+            bark.links();
           break;
           case '!mmr':
-          Bot.say('OhMyDog Текущий MMR на мейне: 6200')
+            Bot.say('OhMyDog Текущий MMR на мейне: 6200')
           break;
           case '!roll':
-          Bot.say(`${chatter.username} нароллил: ${RNG.randomize(0, 100)} BlessRNG`);
+            Bot.say(`${chatter.username} нароллил: ${RNG.randomize(0, 100)} BlessRNG`);
           break;
           case '!uptime':
-          stream.uptime();
+            stream.uptime();
           break;
           case '!s':
-          if (CheckPrevilegies(chatter) && partyGathering) {
-            partyGathering = false;
-            Bot.say(party.stack());
-          };
+            if (CheckPrevilegies(chatter) && partyGathering) {
+              partyGathering = false;
+              Bot.say(party.stack());
+            };
           break;
           case '!help' :
-          Bot.say('Вся помощь по командам в описаннии под стримом! OhMyDog');
+            Bot.say('Вся помощь по командам в описаннии под стримом! OhMyDog');
           break;
           case '!donate':
-          bark.donate();
+            bark.donate();
           break;
           case '!players':
-          if (party.players) { Bot.say(`Сейчас со стримером играют: ${party.players}`);}
+            if (party.players) { Bot.say(`Сейчас со стримером играют: ${party.players}`);}
           else { Bot.say("Пати со стримером еще не собиралось.")}
           break;
         }
         Bot.on('subscription', event => {
-          Bot.say(`${event.login}, спасибо за подписку, братик! PogChamp`);
+          Bot.say(`${event.login}, спасибо за подписку, братик! PogChamp. Получай смайлик и возможность ставить свою музыку на стриме!`);
           Table.build(event, true);
         });
       }
