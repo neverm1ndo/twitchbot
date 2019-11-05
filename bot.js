@@ -164,15 +164,15 @@ Bot.on('message', async chatter => {
           else { Bot.say("Пати со стримером еще не собиралось.")}
           break;
         }
-        Bot.on('subscription', event => {
-          Bot.say(`${event.login}, спасибо за подписку, братик! PogChamp. Получай смайлик и возможность ставить свою музыку на стриме!`);
-          Table.build(event, true);
-        });
       }
     });
 
 
 
+Bot.on('subscription', event => {
+  Bot.say(`${event.login}, спасибо за подписку, братик! PogChamp. Получай смайлик и возможность ставить свою музыку на стриме!`);
+  Table.build(event, true);
+});
 Bot.on('ban', event => {
   console.log(`> BOT | \x1b[31m\x1b[1m[ BAN ]\x1b[0m : ${Timestamp.stamp()} Ban event info:`);
   Table.build(event, true);
