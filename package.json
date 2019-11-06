@@ -1,11 +1,14 @@
 {
-  "name": " evildog",
-  "version": "1.0.0",
+  "name": "ohmydog",
+  "version": "0.8.0",
   "description": "bot 4 twitch chanell",
   "main": "index.js",
   "scripts": {
     "test": "jasmine",
     "start": "node bot.js > log.txt"
+  },
+  "bin": {
+    "omd": "./bot.js"
   },
   "keywords": [
     "bot"
