@@ -205,6 +205,8 @@ if (conf.manual) {
       manual.help()
     } else if (c.includes(`$status`) || c.includes(`$refresh`)) {
       stream.info();
+    } else if (c == '$preconf') {
+      Player.reconfig();
     } else {
       manual.error();
     }
