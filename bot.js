@@ -5,8 +5,8 @@ const WebSocket = require('ws');
 const Server = require('./lib/ws.server.module.js');
 
 const URL = "ws://localhost:3000/";
-// const ws = new WebSocket(URL);
-// let server = new Server(3000);
+const ws = new WebSocket(URL);
+let server = new Server(3000);
 
 const Table = require('./lib/table.module.js');
 const Timestamp = require('./lib/timestamp.module.js');
@@ -17,15 +17,16 @@ const Loader = require('./lib/loader.module.js');
 const RNG = require('./lib/rng.module.js');
 const Bark = require('./lib/bark.module.js');
 const Stream = require('./lib/stream.module.js');
-const Logo = require('./lib/start.module.js');
+const Start = require('./lib/start.module.js');
 
 const TwitchBot = require('twitch-bot')
-const conf = require('./configs/bot.config.js');
+let conf = require('./configs/bot.config.js');
 
 let partyGathering, party, manual;
 let botStartDate = new Date();
 let loader = new Loader();
 let environment = JSON.parse(fs.readFileSync("environment.json"));
+let args = process.argv.slice(2);
 
 const Bot = new TwitchBot(environment.bot);
 
@@ -36,8 +37,19 @@ const automessages = JSON.parse(fs.readFileSync("./etc/automessages.list.json"))
 const bark = new Bark(conf, automessages, Bot);
 const stream = new Stream({api: conf.api, headers: conf.headers}, Bot);
 
-//***************************************************************************************//
-Logo();
+//***********************************************************************//
+Start();
+args.forEach((a) => {
+  if (a == 'silent') {
+    conf.silent = true;
+  } else if (a == 'web') {
+    conf.web = true;
+  } else if (a == 'chatoff') {
+    conf.chat = false;
+  } else if (a == 'moff') {
+    conf.manual = false;
+  }
+});
 
 function ParseBadges(badges) {
   if (badges !== 'No badges' && badges !== null && badges !== undefined) {
@@ -70,17 +82,17 @@ Bot.on('join', channel => {
   console.log(`Joined channel: \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
   console.log(`> Start at      \x1b[1m${Timestamp.stamp()}\x1b[0m`);
   console.log(`> Manual mode   ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
-  console.log(`> WEB view      ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m on ws://localhost:3000':'\x1b[31mdisabled\x1b[0m'}`);
-  console.log(`> Silent mode   ${conf.silent ? '\x1b[1m\x1b[35menabled\x1b[0m!': 'disabled'}`);
+  console.log(`> WEB view      ${conf.web ? '\x1b[1m\x1b[33menabled\x1b[0m on ws://localhost:3000':'\x1b[1m\x1b[31mdisabled\x1b[0m'}`);
+  console.log(`> Silent mode   ${conf.silent ? '\x1b[1m\x1b[31menabled\x1b[0m': 'disabled'}`);
   console.log(`> Chat mode     ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
-  console.log(`> Player :      \x1b[1m${conf.player.type}\x1b[0m\n`)
+  console.log(`> Player        \x1b[1m${conf.player.type}\x1b[0m\n`)
   bark.start();
   stream.info();
-  // if (conf.web) {
-  //   ws.on('open', function open() {
-  //     ws.send(wsmessage("connect","CLI/SERV connection established"));
-  //   });
-  // };
+  if (conf.web) {
+    ws.on('open', function open() {
+      ws.send(wsmessage("connect","CLI/SERV connection established"));
+    });
+  };
 });
 
 Bot.on('error', err => {
@@ -89,8 +101,21 @@ Bot.on('error', err => {
 })
 
 Bot.on('message', async chatter => {
-  // if (conf.web) ws.send(wsmessage('log', chatter.message));
+  if (conf.web) ws.send(wsmessage('log', chatter.message));
   if (conf.chat) { console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m\x1b[47m\x1b[30m ${ParseBadges(chatter.badges)} \x1b[0m \x1b[1m${chatter.username}\x1b[0m: ${chatter.message}`); };
+  if (!partyGathering) {
+    for (let command in sounds) {
+      if (chatter.message == conf.prefix + command) {
+        Player.play(sounds[command].path, sounds[command].delay);
+      }
+    }
+  }
+  if (chatter.message.includes(conf.prefix + 'yt')) {
+    let link = chatter.message.split(/\s/)[1];
+    if (CheckSub(ParseBadges(chatter.badges))) {
+      Player.video(link, chatter.username);
+    }
+  };
   if (!conf.silent) {
     if (partyGathering) {
       if (chatter.message == '+') {
@@ -111,19 +136,6 @@ Bot.on('message', async chatter => {
           };
         });
       }
-      if (!partyGathering) {
-        for (let command in sounds) {
-          if (chatter.message == conf.prefix + command) {
-            Player.play(sounds[command].path, sounds[command].delay);
-          }
-        }
-      }
-      if (chatter.message.includes(conf.prefix + 'yt')) {
-        let link = chatter.message.split(/\s/)[1];
-        if (CheckSub(ParseBadges(chatter.badges))) {
-          Player.video(link, chatter.username);
-        }
-      };
       if (chatter.message.includes('!party')) {
         if (CheckPrevilegies(chatter) && !partyGathering) {
           let amount = chatter.message.split(/\s/)[1];
@@ -166,8 +178,6 @@ Bot.on('message', async chatter => {
         }
       }
     });
-
-
 
 Bot.on('subscription', event => {
   Bot.say(`${event.login}, спасибо за подписку, братик! PogChamp. Получай смайлик и возможность ставить свою музыку на стриме!`);
