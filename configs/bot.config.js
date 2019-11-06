@@ -24,8 +24,8 @@ module.exports = {
   player: {
     type : 'mplayer',
     volume: {
-      audio: 80,
-      video: 40
+      audio: -10,
+      video: -20
     }
   }
 };
