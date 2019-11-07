@@ -27,7 +27,7 @@ let conf = require('./configs/bot.config.js');
 let partyGathering, party, manual;
 let botStartDate = new Date();
 let loader = new Loader();
-let environment = JSON.parse(fs.readFileSync("environment.json"));
+let environment = JSON.parse(fs.readFileSync("./environment.json"));
 let args = process.argv.slice(2);
 
 const Bot = new TwitchBot(environment.bot);
