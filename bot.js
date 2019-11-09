@@ -207,6 +207,16 @@ if (conf.manual) {
       stream.info();
     } else if (c == '$preconf') {
       Player.reconfig();
+    } else if (c == '$follows_dump') {
+      stream.getFirstFollows();
+    } else if (c.includes('$follows_compare')) {
+      let old_d = c.split(/\s/)[2];
+      let new_d = c.split(/\s/)[3];
+      if (new_d = 'today') {
+        stream.compare(old_d, Timestamp.format(new Date()));
+      } else {
+        stream.compare(old_d, new_d);
+      }
     } else {
       manual.error();
     }
