@@ -207,9 +207,9 @@ if (conf.manual) {
       stream.info();
     } else if (c == '$preconf') {
       Player.reconfig();
-    } else if (c == '$follows_dump') {
+    } else if (c == '$fd') {
       stream.getFirstFollows();
-    } else if (c.includes('$follows_compare')) {
+    } else if (c.includes('$fc')) {
       let old_d = c.split(/\s/)[1];
       let new_d = c.split(/\s/)[2];
       console.log(new_d, ' > ', old_d);
