@@ -15,18 +15,16 @@ const Timestamp = require('./lib/timestamp.module.js');
 const Player = require('./lib/player.module.js');
 const Party = require('./lib/party.module.js');
 const Manual = require('./lib/manual.module.js');
-const Loader = require('./lib/loader.module.js');
 const RNG = require('./lib/rng.module.js');
 const Bark = require('./lib/bark.module.js');
 const Stream = require('./lib/stream.module.js');
-const Start = require('./lib/start.module.js');
+const Logo = require('./lib/start.module.js');
 
 const TwitchBot = require('twitch-bot')
 let conf = require('./configs/bot.config.js');
 
 let partyGathering, party, manual;
 let botStartDate = new Date();
-let loader = new Loader();
 let environment = JSON.parse(fs.readFileSync("./environment.json"));
 let args = process.argv.slice(2);
 
@@ -40,7 +38,8 @@ const bark = new Bark(conf, automessages, Bot);
 const stream = new Stream({api: conf.api, headers: conf.headers}, Bot);
 
 //***********************************************************************//
-Start();
+let logo = new Logo();
+logo.draw();
 args.forEach((a) => {
   if (a == 'silent') {
     conf.silent = true;
@@ -80,7 +79,7 @@ function CheckSub(badges) {
 };
 
 Bot.on('join', channel => {
-  loader.stop();
+  logo.clear();
   console.log(`Joined channel: \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
   console.log(`> Start at      \x1b[1m${Timestamp.stamp()}\x1b[0m`);
   console.log(`> Manual mode   ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
