@@ -18,7 +18,11 @@ const Manual = require('./lib/manual.module.js');
 const RNG = require('./lib/rng.module.js');
 const Bark = require('./lib/bark.module.js');
 const Stream = require('./lib/stream.module.js');
+
+/**INTERFACE DRAW**/
 const Logo = require('./lib/start.module.js');
+const Head = require('./lib/head.module.js');
+const Log = require('./lib/log.module.js');
 
 const TwitchBot = require('twitch-bot')
 let conf = require('./configs/bot.config.js');
@@ -39,6 +43,8 @@ const stream = new Stream({api: conf.api, headers: conf.headers}, Bot);
 
 //***********************************************************************//
 let logo = new Logo();
+let head = new Head();
+let logger = new Log();
 logo.draw();
 args.forEach((a) => {
   if (a == 'silent') {
@@ -80,20 +86,22 @@ function CheckSub(badges) {
 
 Bot.on('join', channel => {
   logo.clear();
-  console.log(`Joined channel: \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
-  console.log(`> Start at      \x1b[1m${Timestamp.stamp()}\x1b[0m`);
-  console.log(`> Manual mode   ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
-  console.log(`> WEB view      ${conf.web ? '\x1b[1m\x1b[33menabled\x1b[0m on ws://localhost:3000':'\x1b[1m\x1b[31mdisabled\x1b[0m'}`);
-  console.log(`> Silent mode   ${conf.silent ? '\x1b[1m\x1b[31menabled\x1b[0m': 'disabled'}`);
-  console.log(`> Chat mode     ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
-  console.log(`> Player        \x1b[1m${conf.player.type}\x1b[0m\n`)
-  bark.start();
-  stream.info();
-  if (conf.web) {
-    ws.on('open', function open() {
-      ws.send(wsmessage("connect","CLI/SERV connection established"));
-    });
-  };
+  head.draw();
+  logger.canvas();
+  process.stdout.write('\x1B[?25l');
+  logger.log(`Succesfully joined to channel  \x1b[1m${channel.includes(':')?channel.split(':')[0]:channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
+  logger.log(`Manual mode   ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
+  logger.log(`WEB view      ${conf.web ? '\x1b[1m\x1b[33menabled\x1b[0m on ws://localhost:3000':'\x1b[1m\x1b[31mdisabled\x1b[0m'}`);
+  logger.log(`Silent mode   ${conf.silent ? '\x1b[1m\x1b[31menabled\x1b[0m': 'disabled'}`);
+  logger.log(`Chat mode     ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
+  logger.log(`Player        \x1b[1m${conf.player.type}\x1b[0m\n`);
+  if (!conf.silent) bark.start();
+  // stream.info();
+  // if (conf.web) {
+  //   ws.on('open', function open() {
+  //     ws.send(wsmessage("connect","CLI/SERV connection established"));
+  //   });
+  // };
 });
 
 Bot.on('error', err => {
@@ -103,7 +111,8 @@ Bot.on('error', err => {
 
 Bot.on('message', async chatter => {
   if (conf.web) ws.send(wsmessage('log', chatter.message));
-  if (conf.chat) { console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m\x1b[47m\x1b[30m ${ParseBadges(chatter.badges)} \x1b[0m \x1b[1m${chatter.username}\x1b[0m: ${chatter.message}`); };
+  // if (conf.chat) { logger.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m\x1b[47m\x1b[30m ${ParseBadges(chatter.badges)} \x1b[0m \x1b[1m${chatter.username}\x1b[0m: ${chatter.message}`); };
+  if (conf.chat) { logger.log(chatter.message, chatter.username); };
   if (!partyGathering) {
     for (let command in sounds) {
       if (chatter.message == conf.prefix + command) {
