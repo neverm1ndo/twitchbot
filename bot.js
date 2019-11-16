@@ -94,7 +94,7 @@ Bot.on('join', channel => {
   logger.log(`WEB view      ${conf.web ? '\x1b[1m\x1b[33menabled\x1b[0m on ws://localhost:3000':'\x1b[1m\x1b[31mdisabled\x1b[0m'}`);
   logger.log(`Silent mode   ${conf.silent ? '\x1b[1m\x1b[31menabled\x1b[0m': 'disabled'}`);
   logger.log(`Chat mode     ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
-  logger.log(`Player        \x1b[1m${conf.player.type}\x1b[0m\n`);
+  logger.log(`Player        \x1b[1m${conf.player.type}\x1b[0m`);
   if (!conf.silent) bark.start();
   // stream.info();
   // if (conf.web) {
