@@ -9,6 +9,7 @@ const Server = require('./lib/ws.server.module.js');
 const URL = "ws://localhost:3000/";
 const ws = new WebSocket(URL);
 let server = new Server(3000);
+const tty = require('tty');
 
 const Table = require('./lib/table.module.js');
 const Timestamp = require('./lib/timestamp.module.js');
@@ -23,6 +24,7 @@ const Stream = require('./lib/stream.module.js');
 const Logo = require('./lib/start.module.js');
 const Head = require('./lib/head.module.js');
 const Log = require('./lib/log.module.js');
+const readline = require('readline');
 
 const TwitchBot = require('twitch-bot')
 let conf = require('./configs/bot.config.js');
@@ -204,31 +206,67 @@ Bot.on('timeout', event => {
 });
 
 if (conf.manual) {
-  manual = new Manual(logger);
-  manual.std.addListener('data', async (c) => {
-    c = c.toString().trim();
-    if (c.includes('$say')) {
-      Bot.say(c.split(`$say`)[1].trim());
-      manual.log(c);
-    } else if (c.includes('$help')) {
-      manual.help()
-    } else if (c.includes(`$status`) || c.includes(`$refresh`)) {
-      stream.info();
-    } else if (c == '$preconf') {
-      player.reconfig();
-    } else if (c == '$fd') {
-      stream.getFirstFollows();
-    } else if (c.includes('$fc')) {
-      let old_d = c.split(/\s/)[1];
-      let new_d = c.split(/\s/)[2];
-      console.log(new_d, ' > ', old_d);
-      if (new_d = 'today') {
-        stream.compare(old_d, Timestamp.format(new Date()));
-      } else {
-        stream.compare(old_d, new_d);
+  // manual = new Manual(logger);
+  readline.emitKeypressEvents(process.stdin);
+  let stdin = process.openStdin();
+      stdin.setRawMode(true);
+      stdin.setEncoding( 'utf8' );
+  let command = '';
+  stdin.on('keypress', function (str, key) {
+    command = command + str;
+      if ( key.name === 'backspace') {
+        if (command!=='') {
+          command = command.slice(0, -2);
+        }
       }
-    } else {
-      manual.error();
-    }
+      if (key.sequence === '\r') {
+        if (command.includes('$fd')) {
+          stream.getFirstFollows();
+        } else if (command.includes('$fc')) {
+              let old_d = command.split(/\s/)[1];
+              let new_d = command.split(/\s/)[2];
+              // console.log(new_d, ' > ', old_d);
+              if (new_d = 'today') {
+                stream.compare(old_d, Timestamp.format(new Date()));
+              } else {
+                stream.compare(old_d, new_d);
+            }
+        } else if (command.includes('$say')) {
+          Bot.say(command.split(`$say`)[1].trim());
+          logger.chatlog({username: 'OHMYDOG', color: '#6400F8', message: command.split(`$say`)[1].trim()});
+        }
+        command = '';
+      }
+      process.stdout.write(`\x1b[0K\x1b[${300};${120 + 3}H${command}`);
+      if ( key.sequence === '\u0003' ) {
+        process.stdout.cursorTo(0);
+        process.exit();
+      }
   });
+
+//     c = c.toString().trim();
+//     if (c.includes('$say')) {
+//       Bot.say(c.split(`$say`)[1].trim());
+//       // manual.log(c);
+//     } else if (c.includes('$help')) {
+//       manual.help();
+//     } else if (c.includes(`$status`) || c.includes(`$refresh`)) {
+//       stream.info();
+//     } else if (c == '$preconf') {
+//       player.reconfig();
+//     } else if (c == '$fd') {
+//       stream.getFirstFollows();
+//     } else if (c.includes('$fc')) {
+//       let old_d = c.split(/\s/)[1];
+//       let new_d = c.split(/\s/)[2];
+//       // console.log(new_d, ' > ', old_d);
+//       if (new_d = 'today') {
+//         stream.compare(old_d, Timestamp.format(new Date()));
+//       } else {
+//         stream.compare(old_d, new_d);
+//       }
+//     } else {
+//       // manual.error();
+//     }
+  // });
 }
