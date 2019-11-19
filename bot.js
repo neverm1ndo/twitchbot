@@ -209,6 +209,8 @@ if (conf.manual) {
       Player.reconfig();
     } else if (c == '$fd') {
       stream.getFirstFollows();
+    } else if (c == '$sd') {
+      stream.showDumps();
     } else if (c.includes('$fc')) {
       let old_d = c.split(/\s/)[1];
       let new_d = c.split(/\s/)[2];
