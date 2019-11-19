@@ -38,13 +38,14 @@ const dictionary = JSON.parse(fs.readFileSync("./etc/banned.words.dict.json"));
 const sounds = JSON.parse(fs.readFileSync("./etc/sounds.library.json"));
 const automessages = JSON.parse(fs.readFileSync("./etc/automessages.list.json")).m;
 
+let logger = new Log();
+let player = new Player(logger);
 const bark = new Bark(conf, automessages, Bot);
-const stream = new Stream({api: conf.api, headers: conf.headers}, Bot);
+const stream = new Stream({api: conf.api, headers: conf.headers}, Bot, logger);
 
 //***********************************************************************//
 let logo = new Logo();
-let head = new Head();
-let logger = new Log();
+let head = new Head(environment.bot.channels[0]);
 logo.draw();
 args.forEach((a) => {
   if (a == 'silent') {
@@ -89,19 +90,19 @@ Bot.on('join', channel => {
   head.draw();
   logger.canvas();
   process.stdout.write('\x1B[?25l');
-  logger.log(`Succesfully joined to channel  \x1b[1m${channel.includes(':')?channel.split(':')[0]:channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
-  logger.log(`Manual mode   ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
-  logger.log(`WEB view      ${conf.web ? '\x1b[1m\x1b[33menabled\x1b[0m on ws://localhost:3000':'\x1b[1m\x1b[31mdisabled\x1b[0m'}`);
-  logger.log(`Silent mode   ${conf.silent ? '\x1b[1m\x1b[31menabled\x1b[0m': 'disabled'}`);
-  logger.log(`Chat mode     ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
-  logger.log(`Player        \x1b[1m${conf.player.type}\x1b[0m`);
+  logger.syslog('SYSTEM', `Succesfully joined to channel  \x1b[1m${channel.includes(':')?channel.split(':')[0]:channel}\x1b[0m \x1b[32m⚫\x1b[0m`);
+  logger.syslog('SYSTEM', `Manual mode   ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
+  logger.syslog('SYSTEM', `WEB view      ${conf.web ? '\x1b[1m\x1b[33menabled\x1b[0m on ws://localhost:3000':'\x1b[1m\x1b[31mdisabled\x1b[0m'}`);
+  logger.syslog('SYSTEM', `Silent mode   ${conf.silent ? '\x1b[1m\x1b[31menabled\x1b[0m': 'disabled'}`);
+  logger.syslog('SYSTEM', `Chat mode     ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
+  logger.syslog('SYSTEM', `Player        \x1b[1m${conf.player.type}\x1b[0m`);
   if (!conf.silent) bark.start();
-  // stream.info();
-  // if (conf.web) {
-  //   ws.on('open', function open() {
-  //     ws.send(wsmessage("connect","CLI/SERV connection established"));
-  //   });
-  // };
+  stream.info();
+  if (conf.web) {
+    ws.on('open', function open() {
+      ws.send(wsmessage("connect","CLI/SERV connection established"));
+    });
+  };
 });
 
 Bot.on('error', err => {
@@ -112,18 +113,18 @@ Bot.on('error', err => {
 Bot.on('message', async chatter => {
   if (conf.web) ws.send(wsmessage('log', chatter.message));
   // if (conf.chat) { logger.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m\x1b[47m\x1b[30m ${ParseBadges(chatter.badges)} \x1b[0m \x1b[1m${chatter.username}\x1b[0m: ${chatter.message}`); };
-  if (conf.chat) { logger.log(chatter.message, chatter.username); };
+  if (conf.chat) { logger.chatlog(chatter); };
   if (!partyGathering) {
     for (let command in sounds) {
       if (chatter.message == conf.prefix + command) {
-        Player.play(sounds[command].path, sounds[command].delay);
+        player.play(sounds[command].path, sounds[command].delay);
       }
     }
   }
   if (chatter.message.includes(conf.prefix + 'yt')) {
     let link = chatter.message.split(/\s/)[1];
     if (CheckSub(ParseBadges(chatter.badges))) {
-      Player.video(link, chatter.username);
+      player.video(link, chatter.username);
     }
   };
   if (!conf.silent) {
@@ -203,7 +204,7 @@ Bot.on('timeout', event => {
 });
 
 if (conf.manual) {
-  manual = new Manual();
+  manual = new Manual(logger);
   manual.std.addListener('data', async (c) => {
     c = c.toString().trim();
     if (c.includes('$say')) {
@@ -214,7 +215,7 @@ if (conf.manual) {
     } else if (c.includes(`$status`) || c.includes(`$refresh`)) {
       stream.info();
     } else if (c == '$preconf') {
-      Player.reconfig();
+      player.reconfig();
     } else if (c == '$fd') {
       stream.getFirstFollows();
     } else if (c.includes('$fc')) {
