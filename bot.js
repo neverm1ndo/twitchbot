@@ -105,6 +105,7 @@ Bot.on('join', channel => {
       ws.send(wsmessage("connect","CLI/SERV connection established"));
     });
   };
+  logger.canvas();
 });
 
 Bot.on('error', err => {
@@ -214,6 +215,7 @@ if (conf.manual) {
   let command = '';
   stdin.on('keypress', function (str, key) {
     command = command + str;
+    // console.log(key);
       if ( key.name === 'backspace') {
         if (command!=='') {
           command = command.slice(0, -2);
@@ -234,13 +236,33 @@ if (conf.manual) {
         } else if (command.includes('$say')) {
           Bot.say(command.split(`$say`)[1].trim());
           logger.chatlog({username: 'OHMYDOG', color: '#6400F8', message: command.split(`$say`)[1].trim()});
+        } else if (command.includes('$clr')) {
+            logger.clearSysLog();
+        } else if (command.includes('$redraw')) {
+            logger.canvas();
+        } else if (command.includes('$info')) {
+            logger.clearSysLog();
+            stream.info();
+            logger.canvas();
         }
         command = '';
+        process.stdout.write(`\x1b[0K\x1b[${logger.sysheight};${logger.syswidth + 3}H${command}`);
       }
-      process.stdout.write(`\x1b[0K\x1b[${300};${120 + 3}H${command}`);
+      process.stdout.write(`\x1b[0K\x1b[${logger.sysheight};${logger.syswidth + 3}H${command}`);
       if ( key.sequence === '\u0003' ) {
-        process.stdout.cursorTo(0);
-        process.exit();
+          stream.getFirstFollows();
+          setTimeout(function () {
+            process.stdout.write('\x1Bc');
+            process.stdout.moveCursor(0, -logger.syswidth);
+            process.stdout.clearScreenDown();
+            process.exit();
+          }, 10*1000);
+      }
+      if ( key.sequence === '\u0018' ) {
+        process.stdout.write('\x1Bc');
+        process.stdout.moveCursor(0, -logger.syswidth);
+        process.stdout.clearScreenDown();
+            process.exit();
       }
   });
 
