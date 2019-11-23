@@ -7,3 +7,4 @@ etc/banned.words.dict.json
 etc/sounds.library.json
 spec/*.js
 log.txt
+*.dog

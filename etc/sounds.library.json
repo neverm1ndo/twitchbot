@@ -11,6 +11,14 @@
   "тыменялюбишь" : { "path" : "./probs/lubish.mp3", "delay": 180000},
   "ку" : { "path" : "./probs/ky.mp3", "delay": 180000 },
   "12танго" : { "path" : "./probs/12.mp3", "delay": 180000 },
+  "команда" : { "path" : "./probs/ateam_cs.mp3", "delay": 180000 },
+  "0помощи" : { "path" : "./probs/netupomoshi_cs.mp3", "delay": 180000 },
+  "оп" : { "path" : "./probs/mizantrop_cs.mp3", "delay": 180000 },
+  "сорри" : { "path" : "./probs/sorry_cs.mp3", "delay": 180000 },
+  "зашквар" : { "path" : "./probs/zashkvar_cs.mp3", "delay": 180000 },
+  "всоляного" : { "path" : "./probs/vsolyanogo_cs.mp3", "delay": 180000 },
+  "найс" : { "path" : "./probs/niceigraesh.mp3", "delay": 180000 },
+  "тинкер" : { "path" : "./probs/tinker_cs.mp3", "delay": 180000 },
   "ай" : { "path" : "./probs/aiaiai.mp3", "delay": 180000 },
   "конфликт" : { "path" : "./probs/konflikt.mp3", "delay": 180000 }
 }
