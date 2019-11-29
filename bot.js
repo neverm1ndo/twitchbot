@@ -6,9 +6,9 @@ const fs = require('fs');
 const WebSocket = require('ws');
 const Server = require('./lib/ws.server.module.js');
 
-const URL = "ws://localhost:3000/";
+const URL = "ws://localhost:3001";
 const ws = new WebSocket(URL);
-let server = new Server(3000);
+// let server = new Server(3000);
 
 const Table = require('./lib/table.module.js');
 const Timestamp = require('./lib/timestamp.module.js');
@@ -62,7 +62,7 @@ function ParseBadges(badges) {
 }
 
 function wsmessage(e, message) {
-  return JSON.stringify({e: e, msg: message});
+  return JSON.stringify({event: e, message: message});
 }
 
 function CheckPrevilegies(chatter) {
@@ -89,12 +89,13 @@ Bot.on('join', channel => {
   console.log(`> Chat mode     ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
   console.log(`> Player        \x1b[1m${conf.player.type}\x1b[0m\n`)
   bark.start();
+  ws.on('open', function open() {
+    console.log('connection established');
+    ws.send(wsmessage("connect","CLI/SERV connection established"));
+  });
   stream.info();
-  if (conf.web) {
-    ws.on('open', function open() {
-      ws.send(wsmessage("connect","CLI/SERV connection established"));
-    });
-  };
+  // if (conf.web) {
+  // };
 });
 
 Bot.on('error', err => {
@@ -114,8 +115,10 @@ Bot.on('message', async chatter => {
   }
   if (chatter.message.includes(conf.prefix + 'yt')) {
     let link = chatter.message.split(/\s/)[1];
+    let ytId = link.split('?v=')[1];
     if (CheckSub(ParseBadges(chatter.badges))) {
-      Player.video(link, chatter.username);
+      // Player.video(link, chatter.username);
+    ws.send(JSON.stringify({event: 'bot-play', message: ytId, chatter: chatter.username}))
     }
   };
   if (!conf.silent) {
@@ -211,6 +214,8 @@ if (conf.manual) {
       stream.getFirstFollows();
     } else if (c == '$sd') {
       stream.showDumps();
+    } else if (c == '$v') {
+      ws.send(JSON.stringify({event: 'bot-play', message: 'sEWx6H8gZH8', chatter: 'OHMYDOG'}))
     } else if (c.includes('$fc')) {
       let old_d = c.split(/\s/)[1];
       let new_d = c.split(/\s/)[2];
