@@ -4,11 +4,12 @@
 
 const fs = require('fs');
 const WebSocket = require('ws');
-const Server = require('./lib/ws.server.module.js');
+const videoserver = require('./videoserver.js');
 
 const URL = "ws://localhost:3001";
 const ws = new WebSocket(URL);
-// let server = new Server(3000);
+
+  videoserver();
 
 const Table = require('./lib/table.module.js');
 const Timestamp = require('./lib/timestamp.module.js');

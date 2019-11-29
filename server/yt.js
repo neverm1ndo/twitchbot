@@ -42,6 +42,7 @@ function onYouTubePlayerAPIReady() {
       }
     });
   }).then(()=> {
+	  document.getElementById("ytplayer").style.display = "none";
     console.log('player loaded');
     ws.send(JSON.stringify({event: 'ytp-loaded', message: 'YT-Player is loaded...'}));
   });
@@ -55,6 +56,7 @@ ws.onmessage = (event) => {
       if (checkQueue(depeche.chatter) && !playing) {
         console.log('received message from server: ', depeche);
         player.loadVideoById(depeche.message);
+	document.getElementById("ytplayer").style.display = "block";
         queue.push(depeche.chatter);
         playing = true;
         setTimeout(() => {
@@ -76,5 +78,6 @@ function closeWindow(event) {
   if (event.data == 0) {
     // player.destroy();
     playing = false;
+	  document.getElementById("ytplayer").style.display = "none";
   }
 }
