@@ -41,7 +41,8 @@ function onYouTubePlayerAPIReady() {
         'onStateChange': closeWindow
       }
     });
-  }).then(()=> {
+  }).then((e)=> {
+     e.target.setVolume(15);
 	  document.getElementById("ytplayer").style.display = "none";
     console.log('player loaded');
     ws.send(JSON.stringify({event: 'ytp-loaded', message: 'YT-Player is loaded...'}));
