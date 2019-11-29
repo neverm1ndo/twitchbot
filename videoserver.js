@@ -18,6 +18,16 @@ module.exports = function videoserver() {
     console.log('Video server listening on port 3000! Add http://localhost:3000 to your OBS browser!\n');
   });
 
+  function extractVideoID(url){
+    var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
+    var match = url.match(regExp);
+    if ( match && match[7].length == 11 ){
+        return match[7];
+    } else {
+        console.error("\x1b[31mCould not extract video ID.\x1b[0m");
+    }
+  }
+
   wss.on('connection', (ws) => {
     ws.on('message', function incoming(message) {
       message = JSON.parse(message);
@@ -28,7 +38,8 @@ module.exports = function videoserver() {
         break;
         case 'bot-play':
         console.log(' --> ', {event: 'play', message: message.message});
-        monitor.send(JSON.stringify({event: 'play', message: message.message, chatter: message.chatter}));
+
+        monitor.send(JSON.stringify({event: 'play', message: extractVideoID(message.message), chatter: message.chatter}));
         default:
         console.log('Not responded message');
       }

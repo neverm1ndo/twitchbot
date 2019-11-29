@@ -57,7 +57,7 @@ ws.onmessage = (event) => {
       if (checkQueue(depeche.chatter) && !playing) {
         console.log('received message from server: ', depeche);
         player.loadVideoById(depeche.message);
-	document.getElementById("ytplayer").style.display = "block";
+	       document.getElementById("ytplayer").style.display = "block";
         queue.push(depeche.chatter);
         playing = true;
         setTimeout(() => {

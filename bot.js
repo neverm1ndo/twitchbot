@@ -116,10 +116,10 @@ Bot.on('message', async chatter => {
   }
   if (chatter.message.includes(conf.prefix + 'yt')) {
     let link = chatter.message.split(/\s/)[1];
-    let ytId = link.split('?v=')[1];
+    // let ytId = link.split('watch?v=')[1];
     if (CheckSub(ParseBadges(chatter.badges))) {
       // Player.video(link, chatter.username);
-    ws.send(JSON.stringify({event: 'bot-play', message: ytId, chatter: chatter.username}))
+    ws.send(JSON.stringify({event: 'bot-play', message: link, chatter: chatter.username}))
     }
   };
   if (!conf.silent) {
