@@ -80,7 +80,8 @@ module.exports = function videoserver() {
         usersQueue.push(message.chatter);
         console.log(usersQueue, state);
         setTimeout(() => {
-          usersQueue.pop(message.chatter);
+          let chatter = message.chatter;
+          usersQueue.pop(chatter);
         }, 15*60000);
         resolve(message);
       // } else if (!usersQueue.includes(message.chatter) && (state==1 || state==2 || state ==3)) {
