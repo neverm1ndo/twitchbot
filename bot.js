@@ -85,7 +85,7 @@ function openControlsWindow() {
   if (process.platform === "win32") {
     ChromeLauncher.launch({
       startingUrl: 'http://localhost:3000/controls',
-      chromeFlags: ['--headless', '--disable-gpu', '--remote-debugging-port=9090']
+      chromeFlags: ['--app=http://localhost:3000/controls', '--window-size=400,150']
     }).then(chrome => {
       console.log(`Chrome debugging port running on ${chrome.port}`);
     });
