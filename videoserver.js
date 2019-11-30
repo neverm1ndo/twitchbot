@@ -78,7 +78,7 @@ module.exports = function videoserver() {
     return new Promise((resolve, reject) => {
       if (!usersQueue.includes(message.chatter) && (state==0 || state==-1 || state ==5)) {
         usersQueue.push(message.chatter);
-        playing = true;
+        console.log(usersQueue, state);
         setTimeout(() => {
           usersQueue.pop(message.chatter);
         }, 15*60000);
@@ -105,9 +105,8 @@ module.exports = function videoserver() {
   }
 
   function playVideo(message) {
-    // console.log(usersQueue);
-    // console.log(videoQueue);
     let ID = extractVideoID(message.message);
+    console.log(ID);
     getVideoStats(ID).then((body) => {
       if (+JSON.parse(body).items['0'].statistics.viewCount > 20000) {
         getVideoInfo(ID);

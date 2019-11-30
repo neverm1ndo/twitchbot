@@ -21,7 +21,8 @@ let state = {
 };
 
 function setConnection() {
-  ws = new WebSocket("ws://localhost:3001");
+  ws = new WebSocket(`ws://${window.location.host.split(':')[0]}:3001`);
+    console.log(window.location.host);
   ws.onopen = function() {
     console.log("Соединение установлено.");
     ws.send(JSON.stringify({event: 'controls-connection'}));
@@ -104,7 +105,11 @@ function changeState(monitorState) {
 function showVideoData(data) {
   console.log(data);
   title.innerHTML = data.items["0"].snippet.title;
-  panel.style.background = `url('${data.items["0"].snippet.thumbnails.high.url}') no-repeat 0 0`;
+  try {
+    panel.style.background = `url('${data.items["0"].snippet.thumbnails.maxres.url}') no-repeat 0 0`;
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 function syncState(state) {
