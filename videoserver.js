@@ -122,7 +122,6 @@ module.exports = function videoserver() {
       switch (message.event) {
         case 'ytp-loaded':
           monitor = ws;// ws.send(JSON.stringify({event: 'play', message: 'sEWx6H8gZH8'}));
-          openControlsWindow();
           monitor.send(JSON.stringify({event: 'current-state-request'}));
           console.log('> \x1b[32mMonitor connected\x1b[0m', ' localhost:3000');
           monitor
