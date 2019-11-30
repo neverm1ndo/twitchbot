@@ -11,6 +11,8 @@ let pause = document.getElementById('pause');
 let volume = document.getElementById('volume');
 let volumeVal = document.getElementById('volume_value');
 let title = document.getElementById('playing');
+let panel = document.getElementById('panel');
+let body = document.body;
 let ws;
 let state = {
   playing: false,
@@ -69,6 +71,7 @@ function changeState(monitorState) {
       pause.style.display = "inline-block";
       playpause.disabled = false;
       skip.disabled = false;
+
       break;
     case 'paused':
       state.playing = false;
@@ -99,7 +102,9 @@ function changeState(monitorState) {
 }
 
 function showVideoData(data) {
+  console.log(data);
   title.innerHTML = data.items["0"].snippet.title;
+  panel.style.background = `url('${data.items["0"].snippet.thumbnails.high.url}') no-repeat 0 0`;
 }
 
 function syncState(state) {
