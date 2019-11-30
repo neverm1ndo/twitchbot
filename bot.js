@@ -91,8 +91,7 @@ Bot.on('join', channel => {
   console.log(`> Player        \x1b[1m${conf.player.type}\x1b[0m\n`)
   bark.start();
   ws.on('open', function open() {
-    console.log('connection established');
-    ws.send(wsmessage("connect","CLI/SERV connection established"));
+    console.log('> Connection established\n');
   });
   stream.info();
   // if (conf.web) {
@@ -216,7 +215,7 @@ if (conf.manual) {
     } else if (c == '$sd') {
       stream.showDumps();
     } else if (c == '$v') {
-      ws.send(JSON.stringify({event: 'bot-play', message: 'sEWx6H8gZH8', chatter: 'OHMYDOG'}))
+      ws.send(JSON.stringify({event: 'bot-play', message: 'https://www.youtube.com/watch?v=swmuqGWgZCc', chatter: 'OHMYDOG'}))
     } else if (c.includes('$fc')) {
       let old_d = c.split(/\s/)[1];
       let new_d = c.split(/\s/)[2];

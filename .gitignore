@@ -5,6 +5,7 @@ probs/
 dumps/*.json
 etc/banned.words.dict.json
 etc/sounds.library.json
+etc/*.key.json
 spec/*.js
 log.txt
 *.dog

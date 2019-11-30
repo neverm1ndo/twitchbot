@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>OHMYDOG Video controls</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/controls.css">
+  </head>
+  <body>
+    <p id="playing">No loaded video</p>
+    <button id="skip" type="button" name="skip"><i class="material-icons">skip_next</i></button>
+    <button id="playpause" type="button" name="playpause" disabled>
+      <i id="play" class="material-icons">play_arrow</i>
+      <i id="pause" class="material-icons">pause</i>
+    </button>
+    <button id="mute" type="button" name="mute" disabled><i class="material-icons">volume_mute</i></button>
+    <button id="hide" type="button" name="hide" disabled><i class="material-icons">remove_red_eye</i></button>
+    <div class="volume-control">
+      <input id="volume" type="range" name="volume" value="15" max="100" min="0"/>
+      <label id="volume_value" for="volume">15</label>
+    </div>
+  </body>
+  <script type="text/javascript" src="./controls.js"></script>
+</html>

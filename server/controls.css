@@ -1,0 +1,39 @@
+html body {
+  position: absolute;
+  width: 300px;
+  height: 100px;
+  margin: -50px auto;
+  left: 0;
+  right: 0;
+  top: 50%;
+  text-align: center;
+  font-family: 'Arial', sans-serif;
+}
+label {
+  font-size: 14px;
+  position: relative;
+  top: -6px;
+}
+button {
+  width: 60px;
+  height: 60px;
+  background: #202020;
+  border: none;
+  border-radius: 3px;
+}
+button .material-icons {
+  font-size: 40px;
+  color: #dfdfdf;
+}
+button:disabled {
+  background: #303030;
+}
+button:disabled .material-icons {
+  color: #707070;
+}
+.volume-control {
+  margin-top: 15px;
+}
+#pause {
+  display: none;
+}
