@@ -5,6 +5,7 @@
 const fs = require('fs');
 const WebSocket = require('ws');
 const videoserver = require('./videoserver.js');
+  const ChromeLauncher = require('chrome-launcher');
 
 const URL = "ws://localhost:3001";
 const ws = new WebSocket(URL);
@@ -79,6 +80,19 @@ function CheckSub(badges) {
   });
   return isSub;
 };
+
+function openControlsWindow() {
+  if (process.platform === "win32") {
+    ChromeLauncher.launch({
+      startingUrl: 'http://localhost:3000/controls',
+      chromeFlags: ['--headless', '--disable-gpu', '--remote-debugging-port=9090']
+    }).then(chrome => {
+      console.log(`Chrome debugging port running on ${chrome.port}`);
+    });
+  } else if (process.platform === "linux"){
+    opener('http://localhost:3000/controls');
+  }
+}
 
 Bot.on('join', channel => {
   loader.stop();
@@ -216,6 +230,8 @@ if (conf.manual) {
       stream.showDumps();
     } else if (c == '$v') {
       ws.send(JSON.stringify({event: 'bot-play', message: 'https://www.youtube.com/watch?v=swmuqGWgZCc', chatter: 'OHMYDOG'}))
+    } else if (c == '$oc') {
+      openControlsWindow();
     } else if (c.includes('$fc')) {
       let old_d = c.split(/\s/)[1];
       let new_d = c.split(/\s/)[2];

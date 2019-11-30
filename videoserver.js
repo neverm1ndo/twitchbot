@@ -2,7 +2,7 @@ module.exports = function videoserver() {
   var express = require('express');
   var path = require('path');
   const WebSocket = require('ws');
-  const ChromeLauncher = require('chrome-launcher');
+
   var app = express();
   const wss = new WebSocket.Server({ port: 3001 });
   const opener = require('opener');
@@ -35,19 +35,6 @@ module.exports = function videoserver() {
         return match[7];
     } else {
         console.error("\x1b[31mCould not extract video ID.\x1b[0m");
-    }
-  }
-
-  function openControlsWindow() {
-    if (process.platform === "win32") {
-      ChromeLauncher.launch({
-        startingUrl: 'http://localhost:3000/controls',
-        chromeFlags: ['--headless', '--disable-gpu', '--remote-debugging-port=9090']
-      }).then(chrome => {
-        console.log(`Chrome debugging port running on ${chrome.port}`);
-      });
-    } else if (process.platform === "linux"){
-      opener('http://localhost:3000/controls');
     }
   }
 
