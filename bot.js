@@ -173,7 +173,7 @@ Bot.on('message', async chatter => {
             Bot.say('OhMyDog Текущий MMR на мейне: 6200')
           break;
           case '!roll':
-            Bot.say(`${chatter.username} нароллил: ${RNG.randomize(0, 100)} BlessRNG`);
+            Bot.say(`${chatter.username} нароллил: ${RNG.randomize(0, 101)} BlessRNG`);
           break;
           case '!uptime':
             stream.uptime();
