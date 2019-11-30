@@ -131,7 +131,7 @@ module.exports = function videoserver() {
           console.log('> \x1b[32mControls connected\x1b[0m', ' localhost:3000/controls');
         break;
         case 'remote':
-          monitor.send(JSON.stringify({event: 'remote', message: message.message, value: message.value}));
+          if (monitor) monitor.send(JSON.stringify({event: 'remote', message: message.message, value: message.value}));
         break;
         case 'current-info':
           if (currentVideo) {
@@ -151,7 +151,7 @@ module.exports = function videoserver() {
           }
         break;
         case 'state':
-          controls.send(JSON.stringify(message));
+          if (controls) controls.send(JSON.stringify(message));
         break;
         case 'state-change':
           changeState(message.message);
