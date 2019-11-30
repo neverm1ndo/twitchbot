@@ -131,7 +131,6 @@ function closeWindow(event) {
   ws.send(JSON.stringify({event: 'state-change', message: event.data}));
   if (event.data == 0) {
     // player.destroy();
-    playing = false;
 	  document.getElementById("ytplayer").style.display = "none";
     ws.send(JSON.stringify({event: 'state', message: 'stoped'}));
   }
