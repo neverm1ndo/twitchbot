@@ -82,6 +82,7 @@ module.exports = function videoserver() {
         setTimeout(() => {
           let chatter = message.chatter;
           usersQueue.pop(chatter);
+          console.log('Chatter ', chatter, ' removed from queue ', usersQueue);
         }, 15*60000);
         resolve(message);
       // } else if (!usersQueue.includes(message.chatter) && (state==1 || state==2 || state ==3)) {
