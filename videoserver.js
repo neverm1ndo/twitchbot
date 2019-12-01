@@ -79,8 +79,12 @@ module.exports = function videoserver() {
 
   function toTimeout(chatter) {
     setTimeout(() => {
-      usersQueue.pop(chatter);
-      console.log('Chatter ', chatter, ' removed from queue ', usersQueue);
+      usersQueue.forEach((user, index) => {
+        if (user == chatter) {
+          usersQueue.splice(index, index + 1);
+          console.log('Chatter ', chatter, ' removed from queue ', usersQueue);
+        };
+      })
     }, 15*60000);
   }
 
