@@ -10,7 +10,7 @@ module.exports = function videoserver() {
   const request = require('request');
 
   let key = JSON.parse(fs.readFileSync(__dirname + '/etc/google.api.key.json'));
-  let monitor, controls, currentVideo, state;
+  let monitor, controls, currentVideo, playerState;
   let usersQueue = [];
   let videoQueue = [];
 
@@ -76,9 +76,9 @@ module.exports = function videoserver() {
 
   function checkQueue(message) {
     return new Promise((resolve, reject) => {
-      if (!usersQueue.includes(message.chatter) && (state==0 || state==-1 || state ==5)) {
+      if (!usersQueue.includes(message.chatter) && (playerState.state==0 || playerState.state==-1 || playerState.state ==5)) {
         usersQueue.push(message.chatter);
-        console.log(usersQueue, state);
+        console.log(usersQueue, playerState.state);
         setTimeout(() => {
           let chatter = message.chatter;
           usersQueue.pop(chatter);
@@ -100,7 +100,7 @@ module.exports = function videoserver() {
 
   function changeState(newstate) {
     // console.log('State changed > ', newstate);
-    state = newstate;
+    playerState = newstate;
     // if (state == 0 && videoQueue.length > 0) {
     //   nextQueueTrack();
     // }
@@ -129,6 +129,11 @@ module.exports = function videoserver() {
         break;
         case 'controls-connection':
           controls = ws;// ws.send(JSON.stringify({event: 'play', message: 'sEWx6H8gZH8'}));
+          try { monitor.send(JSON.stringify({event: 'current-state-request'})); }
+          catch (e) { console.log ('ERROR: Waiting for monitor...')}
+          if (currentVideo) {
+            controls.send(JSON.stringify({event: 'video-data', message: currentVideo}));
+          }
           console.log('> \x1b[32mControls connected\x1b[0m', ' localhost:3000/controls');
         break;
         case 'remote':

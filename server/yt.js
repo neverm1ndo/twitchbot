@@ -42,7 +42,7 @@ function setConnection() {
         remote.select(depeche.message, depeche.value);
         break;
       case 'current-state-request':
-        ws.send(JSON.stringify({event:'current-state-data', message: player.getPlayerState()}));
+        ws.send(JSON.stringify({event:'current-state-data', message: { state: player.getPlayerState(), volume: player.getVolume(), muted: player.isMuted()}}));
         break;
       default:
       console.error('something wrong');
@@ -83,7 +83,10 @@ Remote.prototype.select = function (e, val) {
       remote.stop();
     break;
     case 'mute':
-
+      player.mute();
+    break;
+    case 'unmute':
+      player.unMute();
     break;
     case 'play':
       remote.play();

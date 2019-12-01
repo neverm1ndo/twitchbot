@@ -12,6 +12,8 @@ let volume = document.getElementById('volume');
 let volumeVal = document.getElementById('volume_value');
 let title = document.getElementById('playing');
 let panel = document.getElementById('panel');
+let muteOn = document.getElementById('mute_on');
+let muteOff = document.getElementById('mute_off');
 let body = document.body;
 let ws;
 let state = {
@@ -26,8 +28,6 @@ function setConnection() {
   ws.onopen = function() {
     console.log("Соединение установлено.");
     ws.send(JSON.stringify({event: 'controls-connection'}));
-    ws.send(JSON.stringify({event: 'current-info'}));
-    ws.send(JSON.stringify({event: 'current-state-request'}));
   };
 
   ws.onclose = function(event) {
@@ -44,6 +44,7 @@ function setConnection() {
 
   ws.onmessage = (event) => {
     let depeche = JSON.parse(event.data);
+    console.log(depeche);
     switch (depeche.event) {
       case 'state':
       changeState(depeche.message);
@@ -109,11 +110,28 @@ function showVideoData(data) {
     panel.style.background = `url('${data.items["0"].snippet.thumbnails.maxres.url}') no-repeat 0 0`;
   } catch (e) {
     console.log(e);
+    panel.style.background = `rgb(0, 0, 0)`;
   }
 }
 
-function syncState(state) {
-  switch (state) {
+function showMute() {
+  if (state.muted) {
+    muteOn.style.display = "inline-block";
+    muteOff.style.display = "none";
+  }
+  else {
+    muteOn.style.display = "none";
+    muteOff.style.display = "inline-block";
+  }
+}
+
+function syncState(newstate) {
+  console.log(newstate);
+  volume.value = newstate.volume;
+  volumeVal.innerHTML = newstate.volume;
+  state.muted = newstate.muted;
+  showMute();
+  switch (newstate.state) {
     case -1:
     changeState('stoped')
     break;
@@ -130,7 +148,6 @@ function syncState(state) {
       changeState('stoped');
       break;
     default:
-
   }
 }
 
@@ -140,7 +157,10 @@ skip.addEventListener('click', (event)=> {
   ws.send(JSON.stringify({event: 'remote', message: 'skip'}));
 });
 mute.addEventListener('click', (event)=> {
-  ws.send(JSON.stringify({event: 'remote', message: 'mute'}));
+  state.muted = state.muted?false:true;
+  state.muted?ws.send(JSON.stringify({event: 'remote', message: 'mute', value: volume.value})):
+              ws.send(JSON.stringify({event: 'remote', message: 'unmute', value: volume.value}));
+  showMute();
 });
 hide.addEventListener('click', (event)=> {
   ws.send(JSON.stringify({event: 'remote', message: 'hide'}));
