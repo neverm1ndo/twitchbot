@@ -4,8 +4,9 @@
 
 const fs = require('fs');
 const WebSocket = require('ws');
+const opener = require('opener');
 const videoserver = require('./videoserver.js');
-  const ChromeLauncher = require('chrome-launcher');
+const ChromeLauncher = require('chrome-launcher');
 
 const URL = "ws://localhost:3001";
 const ws = new WebSocket(URL);
@@ -82,16 +83,18 @@ function CheckSub(badges) {
 };
 
 function openControlsWindow() {
-  if (process.platform === "win32") {
+  // if (process.platform === "win32") {
     ChromeLauncher.launch({
+      logLevel: 'verbose',
+      ignoreDefaultFlags: true,
       startingUrl: 'http://localhost:3000/controls',
       chromeFlags: ['--app=http://localhost:3000/controls', '--window-size=400,150']
     }).then(chrome => {
       console.log(`Chrome debugging port running on ${chrome.port}`);
     });
-  } else if (process.platform === "linux"){
-    opener('http://localhost:3000/controls');
-  }
+  // } else if (process.platform === "linux"){
+  //   opener('google-chrome --app=http://localhost:3000/controls');
+  // }
 }
 
 Bot.on('join', channel => {
@@ -108,8 +111,6 @@ Bot.on('join', channel => {
     console.log('> Connection established\n');
   });
   stream.info();
-  // if (conf.web) {
-  // };
 });
 
 Bot.on('error', err => {
@@ -129,9 +130,7 @@ Bot.on('message', async chatter => {
   }
   if (chatter.message.includes(conf.prefix + 'yt')) {
     let link = chatter.message.split(/\s/)[1];
-    // let ytId = link.split('watch?v=')[1];
     if (CheckSub(ParseBadges(chatter.badges))) {
-      // Player.video(link, chatter.username);
     ws.send(JSON.stringify({event: 'bot-play', message: link, chatter: chatter.username}))
     }
   };
@@ -151,7 +150,6 @@ Bot.on('message', async chatter => {
       dictionary.timeouts.forEach((word)=> {
         if (chatter.message.includes(word)) {
           console.warn(`> BOT | Catched banned word \x1b[1m\x1b[33m${word}\x1b[0m!\n      └───> Timeouted user \x1b[1m\x1b[33m${chatter.username}\x1b[0m for 50sec`);
-//            Bot.timeout(chatter.username);
           };
         });
       }

@@ -5,12 +5,16 @@ module.exports = function videoserver() {
 
   var app = express();
   const wss = new WebSocket.Server({ port: 3001 });
-  const opener = require('opener');
   const fs = require('fs');
   const request = require('request');
 
   let key = JSON.parse(fs.readFileSync(__dirname + '/etc/google.api.key.json'));
-  let monitor, controls, currentVideo, playerState;
+  let monitor, controls, currentVideo;
+  let playerState = {
+    state: 0,
+    volume: 0,
+    muted: 0
+  };
   let usersQueue = [];
   let videoQueue = [];
 
@@ -75,6 +79,7 @@ module.exports = function videoserver() {
   }
 
   function checkQueue(message) {
+    console.log(playerState);
     return new Promise((resolve, reject) => {
       if (!usersQueue.includes(message.chatter) && (playerState.state==0 || playerState.state==-1 || playerState.state ==5)) {
         usersQueue.push(message.chatter);
@@ -158,9 +163,6 @@ module.exports = function videoserver() {
         break;
         case 'state':
           if (controls) controls.send(JSON.stringify(message));
-        break;
-        case 'state-change':
-          changeState(message.message);
         break;
         case 'bot-play':
         checkQueue(message).then((message) => {

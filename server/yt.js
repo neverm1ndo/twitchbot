@@ -131,7 +131,7 @@ function onYouTubePlayerAPIReady() {
 }
 
 function closeWindow(event) {
-  ws.send(JSON.stringify({event: 'state-change', message: event.data}));
+  ws.send(JSON.stringify({event: 'current-state-data', message: { state: event.data, volume: player.getVolume(), muted: player.isMuted()}}));
   if (event.data == 0) {
     // player.destroy();
 	  document.getElementById("ytplayer").style.display = "none";
