@@ -50,7 +50,6 @@ module.exports = function videoserver() {
     new Promise ((resolve, reject) => {
       request(options,(error, response, body) => {
         if (response) {
-          console.log('Sending data to controls');
           resolve(body);
         } else {
           reject();
@@ -78,17 +77,20 @@ module.exports = function videoserver() {
     })
   }
 
+  function toTimeout(chatter) {
+    setTimeout(() => {
+      usersQueue.pop(chatter);
+      console.log('Chatter ', chatter, ' removed from queue ', usersQueue);
+    }, 15*60000);
+  }
+
   function checkQueue(message) {
     console.log(playerState);
     return new Promise((resolve, reject) => {
       if (!usersQueue.includes(message.chatter) && (playerState.state==0 || playerState.state==-1 || playerState.state ==5)) {
         usersQueue.push(message.chatter);
         console.log(usersQueue, playerState.state);
-        setTimeout(() => {
-          let chatter = message.chatter;
-          usersQueue.pop(chatter);
-          console.log('Chatter ', chatter, ' removed from queue ', usersQueue);
-        }, 15*60000);
+        toTimeout(message.chatter);
         resolve(message);
       // } else if (!usersQueue.includes(message.chatter) && (state==1 || state==2 || state ==3)) {
       //   videoQueue.push(message);
