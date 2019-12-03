@@ -83,7 +83,7 @@ function CheckSub(badges) {
 };
 
 function openControlsWindow() {
-  // if (process.platform === "win32") {
+  if (process.platform === "win32") {
     ChromeLauncher.launch({
       logLevel: 'verbose',
       ignoreDefaultFlags: true,
@@ -92,10 +92,34 @@ function openControlsWindow() {
     }).then(chrome => {
       console.log(`Chrome debugging port running on ${chrome.port}`);
     });
-  // } else if (process.platform === "linux"){
-  //   opener('google-chrome --app=http://localhost:3000/controls');
-  // }
+  } else if (process.platform === "linux"){
+    opener('google-chrome --app=http://localhost:3000/controls --window-size=400,150');
+  }
 }
+ws.on('open', function open() {
+  console.log('> Connection established\n');
+  ws.send(wsmessage('bot-client', true));
+  if (process.platform === "win32") {
+    openControlsWindow();
+  };
+});
+ws.on('message', function incoming(depeche) {
+  depeche = JSON.parse(depeche);
+  switch (depeche.event) {
+    case 'clip-data':
+      Bot.say(`/me   ▶ Проигрывается ${JSON.parse(depeche.message).items[0].snippet.title}`);
+      break;
+    case 'queue-warn':
+      Bot.say(`${depeche.chatter}, твоя очередь еще не пришла`);
+      break;
+    case 'queue':
+      Bot.say(depeche.message.length>0?`Кулдаун на воспроизведение клипов у : ${depeche.message}`:`Список пуст.`);
+      break;
+    case 'clip-error':
+      Bot.say(depeche.message);
+      break;
+  }
+});
 
 Bot.on('join', channel => {
   loader.stop();
@@ -107,9 +131,6 @@ Bot.on('join', channel => {
   console.log(`> Chat mode     ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
   console.log(`> Player        \x1b[1m${conf.player.type}\x1b[0m\n`)
   bark.start();
-  ws.on('open', function open() {
-    console.log('> Connection established\n');
-  });
   stream.info();
 });
 
@@ -187,6 +208,9 @@ Bot.on('message', async chatter => {
           break;
           case '!donate':
             bark.donate();
+          break;
+          case '!queue':
+            if (CheckSub(ParseBadges(chatter.badges))) ws.send(wsmessage('req-queue', true));
           break;
           case '!players':
             if (party.players) { Bot.say(`Сейчас со стримером играют: ${party.players}`);}

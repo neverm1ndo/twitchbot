@@ -9,7 +9,7 @@ module.exports = function videoserver() {
   const request = require('request');
 
   let key = JSON.parse(fs.readFileSync(__dirname + '/etc/google.api.key.json'));
-  let monitor, controls, currentVideo;
+  let monitor, controls, bot, currentVideo;
   let playerState = {
     state: 0,
     volume: 0,
@@ -47,7 +47,7 @@ module.exports = function videoserver() {
       url: `https://www.googleapis.com/youtube/v3/videos?id=${id}&part=snippet&key=${key.key}`,
       method: 'GET',
     };
-    new Promise ((resolve, reject) => {
+    return new Promise ((resolve, reject) => {
       request(options,(error, response, body) => {
         if (response) {
           resolve(body);
@@ -55,10 +55,7 @@ module.exports = function videoserver() {
           reject();
         }
       });
-    }).then((body) => {
-      currentVideo = body;
-      controls.send(JSON.stringify({event: 'video-data', message: body }));;
-    });
+    })
   };
 
   function getVideoStats(id) {
@@ -78,23 +75,17 @@ module.exports = function videoserver() {
   }
 
   function toTimeout(chatter) {
+    usersQueue.push(chatter);
     setTimeout(() => {
-      usersQueue.forEach((user, index) => {
-        if (user == chatter) {
-          usersQueue.splice(index, index + 1);
-          console.log('Chatter ', chatter, ' removed from queue ', usersQueue);
-        };
-      })
+      removeFromQueue(chatter);
     }, 15*60000);
   }
 
   function checkQueue(message) {
-    console.log(playerState);
+    // console.log(playerState);
     return new Promise((resolve, reject) => {
       if (!usersQueue.includes(message.chatter) && (playerState.state==0 || playerState.state==-1 || playerState.state ==5)) {
-        usersQueue.push(message.chatter);
-        console.log(usersQueue, playerState.state);
-        toTimeout(message.chatter);
+
         resolve(message);
       // } else if (!usersQueue.includes(message.chatter) && (state==1 || state==2 || state ==3)) {
       //   videoQueue.push(message);
@@ -117,15 +108,35 @@ module.exports = function videoserver() {
     // }
   }
 
+  function removeFromQueue(chatter) {
+    usersQueue.forEach((user, index) => {
+      if (user == chatter) {
+        usersQueue.splice(index, index + 1);
+        console.log('Chatter ', chatter, ' removed from queue ', usersQueue);
+      };
+    })
+  }
+
   function playVideo(message) {
     let ID = extractVideoID(message.message);
-    console.log(ID);
-    getVideoStats(ID).then((body) => {
-      if (+JSON.parse(body).items['0'].statistics.viewCount > 20000) {
-        getVideoInfo(ID);
-        monitor.send(JSON.stringify({event: 'play', message: ID, chatter: message.chatter}));
-      };
-    });
+    // console.log(ID);
+    if (ID !== undefined) {
+      getVideoStats(ID).then((body) => {
+        if (+JSON.parse(body).items['0'].statistics.viewCount > 20000) {
+          toTimeout(message.chatter);
+          getVideoInfo(ID).then((body) => {
+            currentVideo = body;
+            controls.send(JSON.stringify({event: 'video-data', message: body }));;
+            bot.send(JSON.stringify({event: 'clip-data', message: body, chatter: message.chatter}));
+          });
+          monitor.send(JSON.stringify({event: 'play', message: ID, chatter: message.chatter}));
+        } else {
+          bot.send(JSON.stringify({event: 'clip-error', chatter: message.chatter, message: '⚠ Недостаточно просмотров для запуска.'}));
+        }
+      });
+    } else {
+      bot.send(JSON.stringify({event: 'clip-error', chatter: message.chatter, message: `⚠ Что-то не так с ссылкой на клип, @${message.chatter}. Проверь ее валидность и попробуй еще раз.`}));
+    }
   }
 
   wss.on('connection', (ws) => {
@@ -136,7 +147,6 @@ module.exports = function videoserver() {
           monitor = ws;// ws.send(JSON.stringify({event: 'play', message: 'sEWx6H8gZH8'}));
           monitor.send(JSON.stringify({event: 'current-state-request'}));
           console.log('> \x1b[32mMonitor connected\x1b[0m', ' localhost:3000');
-          monitor
         break;
         case 'controls-connection':
           controls = ws;// ws.send(JSON.stringify({event: 'play', message: 'sEWx6H8gZH8'}));
@@ -174,8 +184,18 @@ module.exports = function videoserver() {
         checkQueue(message).then((message) => {
           playVideo(message);
         }).catch((message) => {
-          console.log('> ', message.chatter, ' in queue...');
+          if (message.chatter !== undefined) {
+            console.log('> ', message.chatter, ' in queue...');
+            bot.send(JSON.stringify({event: 'queue-warn', chatter: message.chatter}))
+          }
         });
+        break;
+        case 'bot-client':
+          bot = ws;
+          console.log('> \x1b[32mBot connected\x1b[0m');
+        break;
+        case 'req-queue':
+          bot.send(JSON.stringify({event: 'queue', message: usersQueue}));
         break;
         default:
           console.log('> Not responded message: ', message);
