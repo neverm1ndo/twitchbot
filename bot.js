@@ -5,13 +5,14 @@
 const fs = require('fs');
 const WebSocket = require('ws');
 const opener = require('opener');
-const videoserver = require('./videoserver.js');
+// const videoserver = require('./videoserver.js');
 const ChromeLauncher = require('chrome-launcher');
+const VideoServer = require('./videoserver.js');
+
 
 const URL = "ws://localhost:3001";
 const ws = new WebSocket(URL);
-
-  videoserver();
+const VServer = new VideoServer();
 
 const Table = require('./lib/table.module.js');
 const Timestamp = require('./lib/timestamp.module.js');
@@ -30,20 +31,23 @@ let conf = require('./configs/bot.config.js');
 let partyGathering, party, manual;
 let botStartDate = new Date();
 let loader = new Loader();
-let environment = JSON.parse(fs.readFileSync("./environment.json"));
+let environment = JSON.parse(fs.readFileSync(__dirname + "/environment.json"));
 let args = process.argv.slice(2);
 
 const Bot = new TwitchBot(environment.bot);
 
-const dictionary = JSON.parse(fs.readFileSync("./etc/banned.words.dict.json"));
-const sounds = JSON.parse(fs.readFileSync("./etc/sounds.library.json"));
-const automessages = JSON.parse(fs.readFileSync("./etc/automessages.list.json")).m;
+const dictionary = JSON.parse(fs.readFileSync(__dirname + "/etc/banned.words.dict.json"));
+const sounds = JSON.parse(fs.readFileSync(__dirname + "/etc/sounds.library.json"));
+const automessages = JSON.parse(fs.readFileSync(__dirname + "/etc/automessages.list.json")).m;
 
 const bark = new Bark(conf, automessages, Bot);
 const stream = new Stream({api: conf.api, headers: conf.headers}, Bot);
 
 //***********************************************************************//
 Start();
+
+VServer.start();
+
 args.forEach((a) => {
   if (a == 'silent') {
     conf.silent = true;
@@ -110,7 +114,7 @@ ws.on('message', function incoming(depeche) {
       Bot.say(`/me   ▶ Проигрывается ${JSON.parse(depeche.message).items[0].snippet.title}`);
       break;
     case 'queue-warn':
-      Bot.say(`${depeche.chatter}, твоя очередь еще не пришла`);
+      Bot.say(`ItsBoshyTime ${depeche.chatter}, твоя очередь еще не пришла`);
       break;
     case 'queue':
       Bot.say(depeche.message.length>0?`Кулдаун на воспроизведение клипов у : ${depeche.message}`:`Список пуст.`);
@@ -210,7 +214,7 @@ Bot.on('message', async chatter => {
             bark.donate();
           break;
           case '!queue':
-            if (CheckSub(ParseBadges(chatter.badges))) ws.send(wsmessage('req-queue', true));
+            if (CheckPrevilegies(chatter)) ws.send(wsmessage('req-queue', true));
           break;
           case '!players':
             if (party.players) { Bot.say(`Сейчас со стримером играют: ${party.players}`);}
