@@ -2,12 +2,16 @@
 
 'use strict';
 
+process.stdout.write('\x1B[?25l');
+
 const fs = require('fs');
 const WebSocket = require('ws');
 const opener = require('opener');
-// const videoserver = require('./videoserver.js');
+
 const ChromeLauncher = require('chrome-launcher');
 const VideoServer = require('./videoserver.js');
+
+const readline = require('readline');
 
 
 const URL = "ws://localhost:3001";
@@ -117,10 +121,20 @@ ws.on('message', function incoming(depeche) {
       Bot.say(`ItsBoshyTime ${depeche.chatter}, твоя очередь еще не пришла`);
       break;
     case 'queue':
-      Bot.say(depeche.message.length>0?`Кулдаун на воспроизведение клипов у : ${depeche.message}`:`Список пуст.`);
+      let users = []
+      depeche.message.forEach((user) => {
+        users.push(user.username);
+      });
+      Bot.say(users.length>0?`Кулдаун на воспроизведение клипов у : ${users}`:`Список пуст.`);
       break;
     case 'clip-error':
       Bot.say(depeche.message);
+      break;
+    case 'ytcd':
+      Bot.say(`@${depeche.message}, осталось еще ${depeche.cooldown}`);
+      break;
+    case 'ytcd-error':
+      Bot.say(`@${depeche.message}, ты не на кулдауне`);
       break;
   }
 });
@@ -216,6 +230,9 @@ Bot.on('message', async chatter => {
           case '!queue':
             if (CheckPrevilegies(chatter)) ws.send(wsmessage('req-queue', true));
           break;
+          case '!cd':
+            ws.send(wsmessage('req-ytcd', chatter.username));
+          break;
           case '!players':
             if (party.players) { Bot.say(`Сейчас со стримером играют: ${party.players}`);}
           else { Bot.say("Пати со стримером еще не собиралось.")}
@@ -238,37 +255,50 @@ Bot.on('timeout', event => {
 });
 
 if (conf.manual) {
-  manual = new Manual();
-  manual.std.addListener('data', async (c) => {
-    c = c.toString().trim();
-    if (c.includes('$say')) {
-      Bot.say(c.split(`$say`)[1].trim());
-      manual.log(c);
-    } else if (c.includes('$help')) {
-      manual.help()
-    } else if (c.includes(`$status`) || c.includes(`$refresh`)) {
-      stream.info();
-    } else if (c == '$preconf') {
-      Player.reconfig();
-    } else if (c == '$fd') {
-      stream.getFirstFollows();
-    } else if (c == '$sd') {
-      stream.showDumps();
-    } else if (c == '$v') {
-      ws.send(JSON.stringify({event: 'bot-play', message: 'https://www.youtube.com/watch?v=swmuqGWgZCc', chatter: 'OHMYDOG'}))
-    } else if (c == '$oc') {
-      openControlsWindow();
-    } else if (c.includes('$fc')) {
-      let old_d = c.split(/\s/)[1];
-      let new_d = c.split(/\s/)[2];
-      console.log(new_d, ' > ', old_d);
-      if (new_d = 'today') {
-        stream.compare(old_d, Timestamp.format(new Date()));
-      } else {
-        stream.compare(old_d, new_d);
+  // manual = new Manual(logger);
+  readline.emitKeypressEvents(process.stdin);
+  let stdin = process.openStdin();
+      stdin.setRawMode(true);
+      stdin.setEncoding( 'utf8' );
+  let command = '';
+  stdin.on('keypress', function (str, key) {
+    command = command + str;
+    // console.log(key);
+      if ( key.name === 'backspace') {
+        if (command!=='') {
+          command = command.slice(0, -2);
+        }
       }
-    } else {
-      manual.error();
-    }
+      if (key.sequence === '\r') {
+        if (command.includes('$fd')) {
+          stream.getFirstFollows();
+        } else if (command.includes('$fc')) {
+              let old_d = command.split(/\s/)[1];
+              let new_d = command.split(/\s/)[2];
+              // console.log(new_d, ' > ', old_d);
+              if (new_d = 'today') {
+                stream.compare(old_d, Timestamp.format(new Date()));
+              } else {
+                stream.compare(old_d, new_d);
+            }
+        } else if (command.includes('$say')) {
+          Bot.say(command.split(`$say`)[1].trim());
+        } else if (command.includes('$info')) {
+            stream.info();
+        } else if (command.includes('$sd')) {
+            stream.showDumps();
+        }
+        command = '';
+        process.stdout.clearLine();
+        process.stdout.cursorTo(0);
+        process.stdout.write(`${command}`);
+      }
+      process.stdout.clearLine();
+      process.stdout.cursorTo(0);
+      process.stdout.write(`${command}`);
+      if ( key.sequence === '\u0003' ) {
+          process.stdout.write(`\n`);
+            process.exit();
+      }
   });
 }

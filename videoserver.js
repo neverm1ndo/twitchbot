@@ -11,7 +11,7 @@ module.exports = class VideoServer {
   constructor() {
     this.app = express();
     this.wss = new WebSocket.Server({ port: 3001 });
-    this.queue = new Queue({ cooldown: 15 });
+    this.queue = new Queue({ cooldown: 20 });
     this.monitor;
     this.controls;
     this.bot;
@@ -73,7 +73,7 @@ module.exports = class VideoServer {
               }
             });
           } else {
-            this.bot.send(JSON.stringify({event: 'clip-error', message: `ItsBoshyTime @${message.chatter}, подожди, пока доигрет предыдущий клип.`}))
+            this.bot.send(JSON.stringify({event: 'clip-error', message: `ItsBoshyTime @${message.chatter}, подожди, пока доиграет предыдущий клип.`}))
           }
           break;
           case 'bot-client':
@@ -82,6 +82,14 @@ module.exports = class VideoServer {
           break;
           case 'req-queue':
             this.bot.send(JSON.stringify({event: 'queue', message: this.queue.list}));
+          break;
+          break;
+          case 'req-ytcd':
+          this.queue.countTime(message.message).then((cd) => {
+            this.bot.send(JSON.stringify({event: 'ytcd', message: message.message, cooldown: cd}));
+          }).catch(user => {
+            this.bot.send(JSON.stringify({event: 'ytcd-error', message: user}));
+          });
           break;
           default:
             console.log('> Not responded message: ', message);
@@ -131,7 +139,7 @@ module.exports = class VideoServer {
 
   getVideoStats(id) {
     let options = {
-      url: `https://www.googleapis.com/youtube/v3/videos?id=${id}&part=statistics&key=AIzaSyDxNpfimMSGenDUXELOC0tTBeQrsuJImKI`,
+      url: `https://www.googleapis.com/youtube/v3/videos?id=${id}&part=statistics&key=${this.key.key}`,
       method: 'GET',
     };
     return new Promise ((resolve, reject) => {

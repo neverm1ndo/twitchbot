@@ -3,7 +3,7 @@ module.exports = {
   delay : 400000, // делей между различными ссылками <- 2 min
   prefix : '!',
   manual : true,
-  chat: true,
+  chat: false,
   silent: false,
   web: false,
   links : {
