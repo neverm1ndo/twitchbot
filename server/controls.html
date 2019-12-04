@@ -22,11 +22,23 @@
           <i id="mute_on" class="material-icons">volume_off</i>
           <i id="mute_off" class="material-icons">volume_up</i>
         </button>
-        <button id="hide" type="button" name="hide" disabled><i class="material-icons">remove_red_eye</i></button>
+        <button id="hide" type="button" name="hide">
+          <i id="hide_on" class="material-icons">desktop_access_disabled</i>
+          <i id="hide_off" class="material-icons">remove_red_eye</i>
+        </button>
         <div class="volume-control">
           <input id="volume" class="range" type="range" name="volume" value="15" max="100" min="0"/>
           <label id="volume_value" for="volume">15</label>
         </div>
+      </div>
+    </div>
+    <div class="error" id="error">
+      <div>
+        <h3>
+          <i class="material-icons">warning</i>
+          Turn on the Monitor Component!
+        </h3>
+        <p>Open the browser in OBS/XSplit on http://localhost:3000 adress</p>
       </div>
     </div>
   </body>

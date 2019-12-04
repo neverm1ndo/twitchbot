@@ -95,7 +95,10 @@ Remote.prototype.select = function (e, val) {
       remote.pause();
     break;
     case 'hide':
-      // player.plauseVideo();
+      remote.hide();
+    break;
+    case 'show':
+      remote.show();
     break;
     case 'volume':
       player.setVolume(val);

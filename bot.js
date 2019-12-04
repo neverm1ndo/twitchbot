@@ -287,6 +287,8 @@ if (conf.manual) {
             stream.info();
         } else if (command.includes('$sd')) {
             stream.showDumps();
+        } else if (command.includes('$v')) {
+            ws.send(JSON.stringify({event: 'bot-play', message: 'https://www.youtube.com/watch?v=swmuqGWgZCc', chatter: 'OHMYDOG'}));
         }
         command = '';
         process.stdout.clearLine();

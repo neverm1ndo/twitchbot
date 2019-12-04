@@ -14,13 +14,18 @@ let title = document.getElementById('playing');
 let panel = document.getElementById('panel');
 let muteOn = document.getElementById('mute_on');
 let muteOff = document.getElementById('mute_off');
+let hideOn = document.getElementById('hide_on');
+let hideOff = document.getElementById('hide_off');
 let body = document.body;
+let error = document.getElementById('error');
 let ws;
 let state = {
   playing: false,
   muted: false,
   hided: false
 };
+
+hide.disabled = true;
 
 function setConnection() {
   ws = new WebSocket(`ws://${window.location.host.split(':')[0]}:3001`);
@@ -73,7 +78,7 @@ function changeState(monitorState) {
       pause.style.display = "inline-block";
       playpause.disabled = false;
       skip.disabled = false;
-
+      hide.disabled = false;
       break;
     case 'paused':
       state.playing = false;
@@ -81,12 +86,14 @@ function changeState(monitorState) {
       pause.style.display = "none";
       skip.disabled = false;
       playpause.disabled = false;
+      hide.disabled = false;
       break;
     case 'stoped':
       state.playing = false;
       play.style.display = "inline-block";
       pause.style.display = "none";
       skip.disabled = true;
+      hide.disabled = true;
       break;
     case 'muted':
       state.muted = true;
@@ -96,9 +103,13 @@ function changeState(monitorState) {
       break;
     case 'hided':
       state.hided = true;
+      hideOn.style.display = "inline-block";
+      hideOff.style.display = "none";
       break;
     case 'showed':
       state.hided = false;
+      hideOff.style.display = "inline-block";
+      hideOn.style.display = "none";
       break;
   }
 }
@@ -124,13 +135,25 @@ function showMute() {
     muteOff.style.display = "inline-block";
   }
 }
+function showHide() {
+  if (state.hided) {
+    hideOn.style.display = "inline-block";
+    hideOff.style.display = "none";
+  }
+  else {
+    hideOn.style.display = "none";
+    hideOff.style.display = "inline-block";
+  }
+}
 
 function syncState(newstate) {
   console.log(newstate);
   volume.value = newstate.volume;
   volumeVal.innerHTML = newstate.volume;
   state.muted = newstate.muted;
+  if (state.playing !== '') error.style.display = 'none';
   showMute();
+  showHide();
   switch (newstate.state) {
     case -1:
     changeState('stoped')
@@ -163,7 +186,12 @@ mute.addEventListener('click', (event)=> {
   showMute();
 });
 hide.addEventListener('click', (event)=> {
-  ws.send(JSON.stringify({event: 'remote', message: 'hide'}));
+  if (state.playing) {
+    state.hided = state.hided?false:true;
+    state.hided?ws.send(JSON.stringify({event: 'remote', message: 'hide'})):
+    ws.send(JSON.stringify({event: 'remote', message: 'show'}));
+    showHide();
+  }
 });
 playpause.addEventListener('click', (event)=> {
   ws.send(JSON.stringify({event: 'remote', message: state.playing?'pause':'play'}));
