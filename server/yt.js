@@ -69,12 +69,15 @@ Remote.prototype.stop = function () {
     player.stopVideo();
     this.element.style.display = "none";
     ws.send(JSON.stringify({event: 'state', message: 'stoped'}));
+    // ws.send(JSON.stringify({event: 'state', message: 'showed'}));
 };
 Remote.prototype.hide = function () {
   this.element.style.display = "none";
+  ws.send(JSON.stringify({event: 'state', message: 'hided'}));
 };
 Remote.prototype.show = function () {
   this.element.style.display = "block";
+  ws.send(JSON.stringify({event: 'state', message: 'showed'}));
 };
 
 Remote.prototype.select = function (e, val) {

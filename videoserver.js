@@ -21,7 +21,7 @@ module.exports = class VideoServer {
       volume: '',
       muted: '',
     };
-    this.key = JSON.parse(fs.readFileSync(__dirname + '/etc/google.api.key.json'));
+    this.key = JSON.parse(fs.readFileSync(__dirname + '/etc/google.api.key.json')).key;
     this.wss.on('connection', (ws) => {
       ws.on('message', (message) => {
         message = JSON.parse(message);
@@ -123,7 +123,7 @@ module.exports = class VideoServer {
 
    getVideoInfo(id) {
     let options = {
-      url: `https://www.googleapis.com/youtube/v3/videos?id=${id}&part=snippet&key=${this.key.key}`,
+      url: `https://www.googleapis.com/youtube/v3/videos?id=${id}&part=snippet&key=${this.key}`,
       method: 'GET',
     };
     return new Promise ((resolve, reject) => {
@@ -139,7 +139,7 @@ module.exports = class VideoServer {
 
   getVideoStats(id) {
     let options = {
-      url: `https://www.googleapis.com/youtube/v3/videos?id=${id}&part=statistics&key=${this.key.key}`,
+      url: `https://www.googleapis.com/youtube/v3/videos?id=${id}&part=statistics&key=${this.key}`,
       method: 'GET',
     };
     return new Promise ((resolve, reject) => {

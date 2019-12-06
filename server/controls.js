@@ -79,6 +79,7 @@ function changeState(monitorState) {
       playpause.disabled = false;
       skip.disabled = false;
       hide.disabled = false;
+      changeState('showed');
       break;
     case 'paused':
       state.playing = false;
