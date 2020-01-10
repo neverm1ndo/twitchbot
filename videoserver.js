@@ -161,7 +161,7 @@ module.exports = class VideoServer {
     let ID = this.extractVideoID(message.message);
     if (ID !== undefined) {
       this.getVideoStats(ID).then((body) => {
-        if (+JSON.parse(body).items['0'].statistics.viewCount > 20000) {
+        if (+JSON.parse(body).items['0'].statistics.viewCount > 20000 || Queue.checkWhitelist(message.chatter)) {
           this.queue.toTimeout(message.chatter);
           this.getVideoInfo(ID).then((body) => {
             this.currentVideo = body;
