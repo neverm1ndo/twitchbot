@@ -28,6 +28,7 @@ const RNG = require('./lib/rng.module.js');
 const Bark = require('./lib/bark.module.js');
 const Stream = require('./lib/stream.module.js');
 const Start = require('./lib/start.module.js');
+const Queue = require('./lib/queue.module.js');
 
 const TwitchBot = require('twitch-bot')
 let conf = require('./configs/bot.config.js');
@@ -169,8 +170,8 @@ Bot.on('message', async chatter => {
   }
   if (chatter.message.includes(conf.prefix + 'yt')) {
     let link = chatter.message.split(/\s/)[1];
-    if (CheckSub(ParseBadges(chatter.badges))) {
-    ws.send(JSON.stringify({event: 'bot-play', message: link, chatter: chatter.username}))
+    if (CheckSub(ParseBadges(chatter.badges)) || Queue.checkWhitelist(chatter.username)) {
+      ws.send(JSON.stringify({event: 'bot-play', message: link, chatter: chatter.username}))
     }
   };
   if (!conf.silent) {
