@@ -159,6 +159,11 @@ Bot.on('error', err => {
 })
 
 Bot.on('message', async chatter => {
+  if (chatter.custom_reward_id) {
+    if (chatter.custom_reward_id == 'aadd172a-8d1d-4cda-9282-06ad218bfecf') {
+	ws.send(JSON.stringify({event: 'bot-play', message: chatter.message, chatter: chatter.username}))
+    }
+  }
   if (conf.web) ws.send(wsmessage('log', chatter.message));
   if (conf.chat) { console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m\x1b[47m\x1b[30m ${ParseBadges(chatter.badges)} \x1b[0m \x1b[1m${chatter.username}\x1b[0m: ${chatter.message}`); };
   if (!partyGathering) {
