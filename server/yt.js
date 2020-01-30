@@ -9,7 +9,7 @@ let connectionCounts = 0;
 
 function setConnection() {
   connectionCounts++;
-  ws = new WebSocket("ws://localhost:3001");
+  ws = new WebSocket(`ws://${window.location.host.split(':')[0]}:3001`);
   ws.onopen = function() {
     console.log("Соединение установлено.");
     if (connectionCounts > 1) {
