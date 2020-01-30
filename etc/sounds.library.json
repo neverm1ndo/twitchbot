@@ -21,5 +21,6 @@
   "тинкер" : { "path" : "./probs/tinker_cs.mp3", "delay": 180000 },
   "ай" : { "path" : "./probs/aiaiai.mp3", "delay": 180000 },
   "конфликт" : { "path" : "./probs/konflikt.mp3", "delay": 180000 },
+  "лакад" : { "path" : "./probs/lakadmatatag.mp3", "delay": 180000 },
   "атвинта" : { "path" : "./probs/atvinta.mp3", "delay": 180000 }
 }
