@@ -6,7 +6,6 @@ process.stdout.write('\x1B[?25l');
 
 const fs = require('fs');
 const WebSocket = require('ws');
-const opener = require('opener');
 
 const ChromeLauncher = require('chrome-launcher');
 const VideoServer = require('./videoserver.js');
@@ -94,15 +93,12 @@ function CheckSub(badges) {
 function openControlsWindow() {
   if (process.platform === "win32") {
     ChromeLauncher.launch({
-      logLevel: 'verbose',
       ignoreDefaultFlags: true,
       startingUrl: 'http://localhost:3000/controls',
       chromeFlags: ['--app=http://localhost:3000/controls', '--window-size=400,150']
     }).then(chrome => {
       console.log(`Chrome debugging port running on ${chrome.port}`);
     });
-  } else if (process.platform === "linux"){
-    opener('google-chrome --app=http://localhost:3000/controls --window-size=400,150');
   }
 }
 ws.on('open', function open() {
@@ -150,7 +146,7 @@ Bot.on('join', channel => {
   console.log(`> Chat mode     ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
   console.log(`> Player        \x1b[1m${conf.player.type}\x1b[0m\n`)
   bark.start();
-  stream.info();
+  //  stream.info();
 });
 
 Bot.on('error', err => {
@@ -213,13 +209,10 @@ Bot.on('message', async chatter => {
             bark.links();
           break;
           case '!mmr':
-            Bot.say('OhMyDog Текущий MMR на мейне: 6200')
+            Bot.say(`OhMyDog Текущий MMR на мейне: ${conf.mmr}`)
           break;
           case '!roll':
             Bot.say(`${chatter.username} нароллил: ${RNG.randomize(0, 101)} BlessRNG`);
-          break;
-          case '!uptime':
-            stream.uptime();
           break;
           case '!s':
             if (CheckPrevilegies(chatter) && partyGathering) {
@@ -238,6 +231,9 @@ Bot.on('message', async chatter => {
           break;
           case '!cd':
             ws.send(wsmessage('req-ytcd', chatter.username));
+          break;
+          case '!караока':
+            ws.send('');
           break;
           case '!players':
             if (party.players) { Bot.say(`Сейчас со стримером играют: ${party.players}`);}
@@ -277,7 +273,7 @@ if (conf.manual) {
       }
       if (key.sequence === '\r') {
         if (command.includes('$fd')) {
-          stream.getFirstFollows();
+          // stream.getFirstFollows();
         } else if (command.includes('$fc')) {
               let old_d = command.split(/\s/)[1];
               let new_d = command.split(/\s/)[2];
@@ -290,11 +286,11 @@ if (conf.manual) {
         } else if (command.includes('$say')) {
           Bot.say(command.split(`$say`)[1].trim());
         } else if (command.includes('$info')) {
-            stream.info();
+            // stream.info();
         } else if (command.includes('$sd')) {
             stream.showDumps();
         } else if (command.includes('$v')) {
-            ws.send(JSON.stringify({event: 'bot-play', message: 'https://www.youtube.com/watch?v=swmuqGWgZCc', chatter: 'OHMYDOG'}));
+            ws.send(JSON.stringify({event: 'bot-play', message: 'https://www.youtube.com/watch?v=hTWKbfoikeg', chatter: 'OHMYDOG'}));
         }
         command = '';
         process.stdout.clearLine();

@@ -1,3 +1,4 @@
+const fs = require('fs');
 module.exports = {
   interval : 1600000, // глобальный кулдаун автоматического постинга ссылок <- 10min
   delay : 400000, // делей между различными ссылками <- 2 min
@@ -6,6 +7,7 @@ module.exports = {
   chat: false,
   silent: false,
   web: false,
+  mmr: 6800,
   links : {
     vk: 'https://vk.com/diktoor',
     donationalerts: 'https://www.donationalerts.com/r/Diktor__',

@@ -6,11 +6,12 @@ var app = express();
 app.set('port', 8080);
 
 app.get('/update', (req, res) => {
-  res.send(fs.readFileSync(__dirname + './sounds.library.json'));
-});
-
-app.get('/check-summ', (req, res) => {
-  res.send(fs.readFileSync(__dirname + './summ'));
+  console.log(req.headers);
+  if (req.headers['client-id '] == '1') {
+    res.send(fs.readFileSync(__dirname + '/updates.json'));
+  } else {
+    res.send('No such client. Access denied');
+  }
 });
 
 app.listen(app.get('port'));

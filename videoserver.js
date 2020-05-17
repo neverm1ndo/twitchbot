@@ -14,6 +14,7 @@ module.exports = class VideoServer {
     this.queue = new Queue({ cooldown: 20 });
     this.monitor;
     this.controls;
+    this.karaoka;
     this.bot;
     this.currentVideo;
     this.playerState = {
@@ -37,6 +38,16 @@ module.exports = class VideoServer {
             catch (e) { console.log ('ERROR: Waiting for monitor...')}
             if (this.currentVideo) {
               this.controls.send(JSON.stringify({event: 'video-data', message: this.currentVideo}));
+            }
+            console.log('> \x1b[32mControls connected\x1b[0m', ' localhost:3000/karaoka');
+          break;
+          case 'karaoka-connection':
+            this.karaoka = ws; // saving karaoka socket
+            // try { this.monitor.send(JSON.stringify({event: 'current-state-request'})); }
+            // catch (e) { console.log ('ERROR: Waiting for monitor...')}
+            console.log('> \x1b[32mKaraoke monitor connected\x1b[0m');
+            if (this.currentVideo) {
+              this.karaoka.send(JSON.stringify({event: 'video-data', message: this.currentVideo}));
             }
             console.log('> \x1b[32mControls connected\x1b[0m', ' localhost:3000/controls');
           break;
@@ -105,6 +116,9 @@ module.exports = class VideoServer {
     this.app.get('/controls', function (req, res) {
       res.sendFile(__dirname + '/server/controls.html');
     });
+    this.app.get('/karaoka', function (req, res) {
+      res.sendFile(__dirname + '/server/karaoka.html');
+    });
     this.app.listen(3000, function () {
       console.log('Video server listening on port 3000! Add http://localhost:3000 to your OBS browser!\n');
     });
@@ -125,6 +139,23 @@ module.exports = class VideoServer {
     let options = {
       url: `https://www.googleapis.com/youtube/v3/videos?id=${id}&part=snippet&key=${this.key}`,
       method: 'GET',
+    };
+    return new Promise ((resolve, reject) => {
+      request(options,(error, response, body) => {
+        if (response) {
+          resolve(body);
+        } else {
+          reject();
+        }
+      });
+    })
+  };
+
+  getVideoCaptions(id) {
+    let options = {
+      url: `https://www.googleapis.com/youtube/v3/captions?videoId=${id}&part=snippet&key=${this.key}`,
+      // url: `https://www.googleapis.com/youtube/v3/captions/id?id=${id}=`,
+      method: 'GET'
     };
     return new Promise ((resolve, reject) => {
       request(options,(error, response, body) => {
@@ -165,6 +196,9 @@ module.exports = class VideoServer {
           this.queue.toTimeout(message.chatter);
           this.getVideoInfo(ID).then((body) => {
             this.currentVideo = body;
+            this.getVideoCaptions(ID).then((body) => {
+              this.karaoka.send(JSON.stringify({event: 'captions-data', message: body }));
+            });
             this.controls.send(JSON.stringify({event: 'video-data', message: body }));;
             this.bot.send(JSON.stringify({event: 'clip-data', message: body, chatter: message.chatter}));
           });
