@@ -39,7 +39,7 @@ module.exports = class VideoServer {
             if (this.currentVideo) {
               this.controls.send(JSON.stringify({event: 'video-data', message: this.currentVideo}));
             }
-            console.log('> \x1b[32mControls connected\x1b[0m', ' localhost:3000/karaoka');
+            console.log('> \x1b[32mControls connected\x1b[0m', ' localhost:3000/controls');
           break;
           case 'karaoka-connection':
             this.karaoka = ws; // saving karaoka socket
@@ -143,6 +143,7 @@ module.exports = class VideoServer {
     return new Promise ((resolve, reject) => {
       request(options,(error, response, body) => {
         if (response) {
+          console.log(body);
           resolve(body);
         } else {
           reject();
@@ -176,6 +177,7 @@ module.exports = class VideoServer {
     return new Promise ((resolve, reject) => {
       request(options,(error, response, body) => {
         if (response) {
+          console.log(body);
           resolve(body);
         } else {
           reject();
@@ -196,9 +198,9 @@ module.exports = class VideoServer {
           this.queue.toTimeout(message.chatter);
           this.getVideoInfo(ID).then((body) => {
             this.currentVideo = body;
-            this.getVideoCaptions(ID).then((body) => {
-              this.karaoka.send(JSON.stringify({event: 'captions-data', message: body }));
-            });
+            // this.getVideoCaptions(ID).then((body) => {
+            //   this.karaoka.send(JSON.stringify({event: 'captions-data', message: body }));
+            // });
             this.controls.send(JSON.stringify({event: 'video-data', message: body }));;
             this.bot.send(JSON.stringify({event: 'clip-data', message: body, chatter: message.chatter}));
           });

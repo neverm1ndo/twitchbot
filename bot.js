@@ -95,7 +95,7 @@ function openControlsWindow() {
     ChromeLauncher.launch({
       ignoreDefaultFlags: true,
       startingUrl: 'http://localhost:3000/controls',
-      chromeFlags: ['--app=http://localhost:3000/controls', '--window-size=400,150']
+      chromeFlags: ['--app=http://localhost:3000/controls', '--window-size=470,190']
     }).then(chrome => {
       console.log(`Chrome debugging port running on ${chrome.port}`);
     });
@@ -146,7 +146,6 @@ Bot.on('join', channel => {
   console.log(`> Chat mode     ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!': 'disabled'}`);
   console.log(`> Player        \x1b[1m${conf.player.type}\x1b[0m\n`)
   bark.start();
-  //  stream.info();
 });
 
 Bot.on('error', err => {

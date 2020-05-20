@@ -31,7 +31,7 @@ class Karaoka {
         case 'captions-data':
           this.showSubs(JSON.parse(depeche.message));
           let id = JSON.parse(depeche.message).items[1].id;
-          fetch(`https://www.googleapis.com/youtube/v3/captions/${id}&key=AIzaSyDNKlg0-42ZWknsu0-VaTdGpsuBmI-mf8A`)
+          fetch(`https://www.googleapis.com/youtube/v3/captions/${id}&key=`)
                 .then(response => console.log(response.text()));
                 // .then(commits => alert(commits[0].author.login));
         break;
