@@ -161,7 +161,7 @@ Bot.on('error', err => {
 })
 
 Bot.on('message', async chatter => {
-  console.log(chatter);
+  // console.log(chatter);
   if (chatter.custom_reward_id) {
     if (chatter.custom_reward_id == 'aadd172a-8d1d-4cda-9282-06ad218bfecf') {
 	ws.send(JSON.stringify({event: 'bot-play', message: chatter.message, chatter: chatter.username}))
