@@ -16,6 +16,7 @@ module.exports = class VideoServer {
     this.controls;
     this.karaoka;
     this.bot;
+    this.speaker;
     this.currentVideo;
     this.playerState = {
       state: '',
@@ -50,6 +51,17 @@ module.exports = class VideoServer {
               this.karaoka.send(JSON.stringify({event: 'video-data', message: this.currentVideo}));
             }
             console.log('> \x1b[32mControls connected\x1b[0m', ' localhost:3000/controls');
+          break;
+          case 'speaker-connection':
+            this.speaker = ws; // saving karaoka socket
+            // try { this.monitor.send(JSON.stringify({event: 'current-state-request'})); }
+            // catch (e) { console.log ('ERROR: Waiting for monitor...')}
+            this.speaker.send(JSON.stringify({event: 'connection', message: 'Connected'}));
+            console.log('> \x1b[32mSpeaker connected\x1b[0m', ' localhost:3000/speaker');
+          break;
+          case 'speaker-message':
+          console.log(message.message);
+          if (this.speaker) this.speaker.send(JSON.stringify({event: 'hl_msg', message: message.message}));
           break;
           case 'remote':
             if (this.monitor) this.monitor.send(JSON.stringify({event: 'remote', message: message.message, value: message.value}));
@@ -118,6 +130,9 @@ module.exports = class VideoServer {
     });
     this.app.get('/karaoka', function (req, res) {
       res.sendFile(__dirname + '/server/karaoka.html');
+    });
+    this.app.get('/speaker', function (req, res) {
+      res.sendFile(__dirname + '/server/speaker.html');
     });
     this.app.listen(3000, function () {
       console.log('Video server listening on port 3000! Add http://localhost:3000 to your OBS browser!\n');
