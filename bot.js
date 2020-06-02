@@ -161,19 +161,17 @@ Bot.on('error', err => {
 })
 
 Bot.on('message', async chatter => {
-  // console.log(chatter);
+  console.log(chatter);
   if (chatter.custom_reward_id) {
     if (chatter.custom_reward_id == 'aadd172a-8d1d-4cda-9282-06ad218bfecf') {
 	ws.send(JSON.stringify({event: 'bot-play', message: chatter.message, chatter: chatter.username}))
     }
-  }
-  if (chatter.msg_id) {
-    if (chatter.msg_id == 'highlighted-message') {
+    if (chatter.custom_reward_id == '83a50c0d-1051-4e57-a6e7-4d8a3263654c') {
       ws.send(wsmessage('speaker-message', chatter.message));
     }
   }
   if (conf.web) ws.send(wsmessage('log', chatter.message));
-  if (conf.chat) { console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m\x1b[47m\x1b[30m ${ParseBadges(chatter.badges)} \x1b[0m \x1b[1m${chatter.username}\x1b[0m: ${chatter.message}`); };
+  if (conf.chat) console.log(`> BOT | \x1b[1m[ CHAT ]\x1b[0m\x1b[2m ${Timestamp.stamp()} \x1b[0m\x1b[47m\x1b[30m ${ParseBadges(chatter.badges)} \x1b[0m \x1b[1m${chatter.username}\x1b[0m: ${chatter.message}`);
   if (!partyGathering) {
     for (let command in sounds) {
       if (chatter.message == conf.prefix + command) {
@@ -186,7 +184,7 @@ Bot.on('message', async chatter => {
     if (CheckSub(ParseBadges(chatter.badges)) || Queue.checkWhitelist(chatter.username)) {
       ws.send(JSON.stringify({event: 'bot-play', message: link, chatter: chatter.username}))
     }
-  };
+  }
   if (!conf.silent) {
     if (partyGathering) {
       if (chatter.message == '+') {
