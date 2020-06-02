@@ -17,6 +17,16 @@ button {
   right: 0;
   font-size: 20px;
 }
+#mute {
+  top: 70%;
+}
+#volume {
+  display: none;
+  position: relative;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
+}
 p {
   font-family: 'Arial', sans-serif;
   font-size: 18px;

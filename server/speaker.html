@@ -16,10 +16,24 @@
 
   <body>
     <h1></h1>
-    <button type="button" name="button">Разрешить управление спикером</button>
+    <button id="accept" type="button" name="button">Разрешить управление спикером</button>
     <p></p>
+    <input id="volume" type="range" min="0" max="100" name="volume" value="35">
     <script type="text/javascript">
         let ws;
+
+        class Filter {
+          constructor() {
+          }
+          static separate (text) {
+            const schedule = ['/^', 'пидор', 'пидр', 'пидарас', 'пидорас'];
+            // text = text.replace(' ', '');
+            schedule.forEach((word) => {
+            text = text.replace(new RegExp(`${word}`, 'gi'), 'уууууу');
+            });
+            return text;
+          }
+        }
         function setConnection() {
           ws = new WebSocket(`ws://${window.location.host.split(':')[0]}:3001`);
             console.log(window.location.host);
@@ -45,7 +59,8 @@
             console.log(depeche);
             switch (depeche.event) {
               case 'hl_msg':
-                speak(depeche.message);
+              console.log(depeche.message);
+                speak(Filter.separate(depeche.message));
               break;
               case 'connection':
                 console.log(depeche.message);
@@ -63,17 +78,25 @@
 
         var pitchValue = 1;
         var rateValue = 1;
+        let volume = window.localStorage.getItem('volume');
+        let volumeRanger = document.querySelector('#volume');
+            volumeRanger.value = volume*100;
 
         let msg = document.querySelector('p');
 
         var voices = [];
 
-        var btn = document.querySelector('button');
+        var btn = document.querySelector('#accept');
             btn.addEventListener('click', ()=> {
-              speak('Разрешено автоматическое управление спикером');
+              // speak('');
+              msg.innerHTML = 'Разрешено управление спикером';
               btn.style.display = 'none';
+              volumeRanger.style.display = 'block';
             })
-
+            volumeRanger.addEventListener('change', () => {
+              volume = volumeRanger.value/100;
+              window.localStorage.setItem('volume', volume);
+            })
         function setSpeech() {
             return new Promise(
                 function (resolve, reject) {
@@ -107,9 +130,18 @@
               return;
           }
           if (text !== '') {
+            let selectedOption;
+            console.log(voices);
+            if (text.includes(']p[')) {
+              let params = text.split(']p[');
+                  text = params[0];
+                  selectedOption = voices[params[1].split('|')[0]].name;
+                  pitchValue = +params[1].split('|')[1];
+            } else {
+                selectedOption = 'Google русский';
+            }
             msg.innerHTML = text;
             let utterThis = new SpeechSynthesisUtterance(text);
-            let selectedOption = 'Google русский';
             for(i = 0; i < voices.length ; i++) {
               if(voices[i].name === selectedOption) {
                 utterThis.voice = voices[i];
@@ -118,7 +150,8 @@
             }
             utterThis.pitch = pitchValue;
             utterThis.rate = rateValue;
-            utterThis.volume = 0.35;
+            utterThis.volume = volume;
+            utterThis.pitch =
             synth.speak(utterThis);
           }
         }

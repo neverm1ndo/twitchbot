@@ -164,10 +164,14 @@ Bot.on('message', async chatter => {
   // console.log(chatter);
   if (chatter.custom_reward_id) {
     if (chatter.custom_reward_id == 'aadd172a-8d1d-4cda-9282-06ad218bfecf') {
-	ws.send(JSON.stringify({event: 'bot-play', message: chatter.message, chatter: chatter.username}))
+	     ws.send(JSON.stringify({event: 'bot-play', message: chatter.message, chatter: chatter.username}))
     }
     if (chatter.custom_reward_id == '83a50c0d-1051-4e57-a6e7-4d8a3263654c') {
-      ws.send(wsmessage('speaker-message', chatter.message));
+      if (chatter.message.length < 100) {
+        ws.send(wsmessage('speaker-message', chatter.message));
+      } else {
+        Bot.say('ItsBoshyTime Слишком много символов. Разрешено максимум 100.')
+      }
     }
   }
   if (conf.web) ws.send(wsmessage('log', chatter.message));
@@ -299,6 +303,8 @@ if (conf.manual) {
             // stream.info();
         } else if (command.includes('$sd')) {
             stream.showDumps();
+        } else if (command.includes('$vi')) {
+            ws.send(wsmessage('speaker-message', 'Проверка синтезатора речи ]p[10|2'));
         } else if (command.includes('$v')) {
             ws.send(JSON.stringify({event: 'bot-play', message: 'https://www.youtube.com/watch?v=hTWKbfoikeg', chatter: 'OHMYDOG'}));
         }
