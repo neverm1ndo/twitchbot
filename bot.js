@@ -96,13 +96,12 @@ class OMD {
     });
     Bot.on('join', (channel) => {
       this.loader.stop();
-      console.log(`Joined channel: \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m\n`,
-        `> Start at      \x1b[1m${Timestamp.stamp()}\x1b[0m\n`,
-        `> Manual mode   ${conf.manual ? '\x1b[1m\x1b[33menabled\x1b[0m!' : 'disabled'}\n`,
-        `> WEB view      ${conf.web ? '\x1b[1m\x1b[33menabled\x1b[0m on ws://localhost:3000' : '\x1b[1m\x1b[31mdisabled\x1b[0m'}\n`,
-        `> Silent mode   ${conf.silent ? '\x1b[1m\x1b[31menabled\x1b[0m' : 'disabled'}\n`,
-        `> Chat mode     ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!' : 'disabled'}\n`,
-        `> Player        \x1b[1m${conf.player.type}\x1b[0m\n`);
+      console.log(`  Joined channel:  \x1b[1m${channel}\x1b[0m \x1b[32m⚫\x1b[0m\n\n`,
+        `    Start at      \x1b[1m${Timestamp.stamp()}\x1b[0m\n`,
+        `    Manual mode   ${conf.manual ? '\x1b[1m\x1b[32menabled\x1b[0m' : 'disabled'}\n`,
+        `    Silent mode   ${conf.silent ? '\x1b[1m\x1b[31menabled\x1b[0m' : 'disabled'}\n`,
+        `    Chat mode     ${conf.chat ? '\x1b[1m\x1b[33menabled\x1b[0m!' : 'disabled'}\n`,
+        `    Player        \x1b[1m${conf.player.type}\x1b[0m\n`);
       this.bark.start();
     });
     Bot.on('error', (err) => {
@@ -201,8 +200,6 @@ class OMD {
       const link = chatter.message.split(/\s/)[1];
       if (this.CheckSub(this.ParseBadges(chatter.badges)) || Queue.checkWhitelist(chatter.username)) {
         this.ws.send(JSON.stringify({ event: 'bot-play', message: link, chatter: chatter.username }));
-      } else {
-        console.log('lol');
       }
     }
     if (!conf.silent) {

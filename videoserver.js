@@ -129,7 +129,7 @@ module.exports = class VideoServer {
       res.sendFile(`${__dirname}/server/speaker.html`);
     });
     this.app.listen(3000, () => {
-      console.log('Video server listening on port 3000! Add http://localhost:3000 to your OBS browser!\n');
+      console.log('  Video server listening on port 3000! Add http://localhost:3000 to your OBS browser!\n');
     });
   }
 
