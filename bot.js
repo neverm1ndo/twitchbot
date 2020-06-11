@@ -1,6 +1,7 @@
 process.stdout.write('\x1B[?25l');
 
 const fs = require('fs');
+const readline = require('readline');
 const WebSocket = require('ws');
 
 const ChromeLauncher = require('chrome-launcher');
@@ -23,21 +24,13 @@ const conf = require('./configs/bot.config.js');
 const environment = JSON.parse(fs.readFileSync(`${__dirname}/environment.json`));
 const args = process.argv.slice(2);
 
+args.forEach((arg) => {
+  environment.bot.channels = [arg];
+});
+
 const Bot = new TwitchBot(environment.bot);
 
-//* **********************************************************************//
-
-args.forEach((a) => {
-  if (a === 'silent') {
-    conf.silent = true;
-  } else if (a === 'web') {
-    conf.web = true;
-  } else if (a === 'chatoff') {
-    conf.chat = false;
-  } else if (a === 'moff') {
-    conf.manual = false;
-  }
-});
+//* ********************************************************************* *//
 
 class OMD {
   constructor(options) {
@@ -60,12 +53,12 @@ class OMD {
     this.ws.on('open', () => {
       console.log('> Connection established\n');
       this.ws.send(this.wsmessage('bot-client', true));
-      if (process.platform === 'win32') {
-        OMD.openControlsWindow();
-      }
+      // if (process.platform === 'win32') {
+      //   OMD.openControlsWindow();
+      // }
     });
-    this.ws.on('message', (depeche) => {
-      this.depeche = JSON.parse(depeche);
+    this.ws.on('message', (message) => {
+      const depeche = JSON.parse(message);
       switch (depeche.event) {
         case 'clip-data': {
           Bot.say(`/me   ▶ Проигрывается ${JSON.parse(depeche.message).items[0].snippet.title}`);
@@ -182,7 +175,7 @@ class OMD {
     }
   }
 
-  static readChattersMessage(chatter) {
+  readChattersMessage(chatter) {
     if (chatter.custom_reward_id) {
       if (chatter.custom_reward_id === 'aadd172a-8d1d-4cda-9282-06ad218bfecf') {
         this.ws.send(JSON.stringify({ event: 'bot-play', message: chatter.message, chatter: chatter.username }));
@@ -208,6 +201,8 @@ class OMD {
       const link = chatter.message.split(/\s/)[1];
       if (this.CheckSub(this.ParseBadges(chatter.badges)) || Queue.checkWhitelist(chatter.username)) {
         this.ws.send(JSON.stringify({ event: 'bot-play', message: link, chatter: chatter.username }));
+      } else {
+        console.log('lol');
       }
     }
     if (!conf.silent) {
@@ -287,47 +282,48 @@ class OMD {
       }
     }
   }
+
+  setControls() {
+    if (conf.manual) {
+      readline.emitKeypressEvents(process.stdin);
+      const stdin = process.openStdin();
+      stdin.setRawMode(true);
+      stdin.setEncoding('utf8');
+      let command = '';
+      stdin.on('keypress', (str, key) => {
+        command += str;
+        if (key.name === 'backspace') {
+          if (command !== '') {
+            command = command.slice(0, -2);
+          }
+        }
+        if (key.sequence === '\r') {
+          if (command.includes('$say')) {
+            Bot.say(command.split('$say')[1].trim());
+          }
+          if (command.includes('$vi')) {
+            this.ws.send(this.wsmessage('speaker-message', 'Проверка синтезатора речи ]p[10|2'));
+          }
+          if (command.includes('$v')) {
+            this.ws.send(JSON.stringify({ event: 'bot-play', message: 'https://www.youtube.com/watch?v=hTWKbfoikeg', chatter: 'OHMYDOG' }));
+          }
+          command = '';
+          process.stdout.clearLine();
+          process.stdout.cursorTo(0);
+          process.stdout.write(`${command}`);
+        }
+        process.stdout.clearLine();
+        process.stdout.cursorTo(0);
+        process.stdout.write(`${command}`);
+        if (key.sequence === '\u0003') {
+          process.stdout.write('\n');
+          process.exit();
+        }
+      });
+    }
+  }
 }
 
 const omd = new OMD({ schedule: new Schedule() });
 omd.init();
-
-// if (conf.manual) {
-//   // manual = new Manual(logger);
-//   readline.emitKeypressEvents(process.stdin);
-//   const stdin = process.openStdin();
-//   stdin.setRawMode(true);
-//   stdin.setEncoding('utf8');
-//   let command = '';
-//   stdin.on('keypress', (str, key) => {
-//     command += str;
-//     // console.log(key);
-//     if (key.name === 'backspace') {
-//       if (command !== '') {
-//         command = command.slice(0, -2);
-//       }
-//     }
-//     if (key.sequence === '\r') {
-//       if (command.includes('$say')) {
-//         Bot.say(command.split('$say')[1].trim());
-//       } else if (command.includes('$sd')) {
-//         stream.showDumps();
-//       } else if (command.includes('$vi')) {
-//         ws.send(wsmessage('speaker-message', 'Проверка синтезатора речи ]p[10|2'));
-//       } else if (command.includes('$v')) {
-//         ws.send(JSON.stringify({ event: 'bot-play', message: 'https://www.youtube.com/watch?v=hTWKbfoikeg', chatter: 'OHMYDOG' }));
-//       }
-//       command = '';
-//       process.stdout.clearLine();
-//       process.stdout.cursorTo(0);
-//       process.stdout.write(`${command}`);
-//     }
-//     process.stdout.clearLine();
-//     process.stdout.cursorTo(0);
-//     process.stdout.write(`${command}`);
-//     if (key.sequence === '\u0003') {
-//       process.stdout.write('\n');
-//       process.exit();
-//     }
-//   });
-// }
+omd.setControls();

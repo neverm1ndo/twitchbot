@@ -4,7 +4,6 @@ const mute = document.getElementById('mute');
 const hide = document.getElementById('hide');
 const play = document.getElementById('play');
 const pause = document.getElementById('pause');
-// let replay = document.getElementById('replay');
 const volume = document.getElementById('volume');
 const volumeVal = document.getElementById('volume_value');
 const title = document.getElementById('playing');

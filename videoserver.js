@@ -57,7 +57,7 @@ module.exports = class VideoServer {
             if (this.speaker) this.speaker.send(JSON.stringify({ event: 'hl_msg', message: depeche.message }));
             break;
           case 'remote':
-            if (this.monitor) this.monitor.send(JSON.stringify({ event: 'remote', message: depeche.message, value: message.value }));
+            if (this.monitor) this.monitor.send(JSON.stringify({ event: 'remote', message: depeche.message, value: depeche.value }));
             break;
           case 'current-info':
             if (this.currentVideo) {
@@ -82,15 +82,15 @@ module.exports = class VideoServer {
             break;
           case 'bot-play':
             if (this.playerState.state === 5 || this.playerState.state === 0) {
-              this.queue.check(message).then(() => {
-                this.playVideo(message);
-              }).catch(() => {
-                if (message.chatter !== undefined) {
-                  this.bot.send(JSON.stringify({ event: 'queue-warn', chatter: message.chatter }));
+              this.queue.check(depeche).then((dep) => {
+                this.playVideo(dep);
+              }).catch((dep) => {
+                if (dep.chatter !== undefined) {
+                  this.bot.send(JSON.stringify({ event: 'queue-warn', chatter: dep.chatter }));
                 }
               });
             } else {
-              this.bot.send(JSON.stringify({ event: 'clip-error', message: `ItsBoshyTime @${message.chatter}, подожди, пока доиграет предыдущий клип.` }));
+              this.bot.send(JSON.stringify({ event: 'clip-error', message: `ItsBoshyTime @${depeche.chatter}, подожди, пока доиграет предыдущий клип.` }));
             }
             break;
           case 'bot-client':
@@ -133,12 +133,6 @@ module.exports = class VideoServer {
     });
   }
 
-  extractVideoID(url) {
-    this.regExp = new RegExp(/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\\x12\\?]*).*/);
-    const match = url.match(this.regExp);
-    return match && match[7].length === 11 ? match[7] : console.error('NO videoID');
-  }
-
   getVideoInfo(id) {
     const options = {
       url: `https://www.googleapis.com/youtube/v3/videos?id=${id}&part=snippet&key=${this.key}`,
@@ -147,7 +141,6 @@ module.exports = class VideoServer {
     return new Promise((resolve, reject) => {
       request(options, (error, response, body) => {
         if (response) {
-          console.log(body);
           resolve(body);
         } else {
           reject();
@@ -159,7 +152,6 @@ module.exports = class VideoServer {
   getVideoCaptions(id) {
     const options = {
       url: `https://www.googleapis.com/youtube/v3/captions?videoId=${id}&part=snippet&key=${this.key}`,
-      // url: `https://www.googleapis.com/youtube/v3/captions/id?id=${id}=`,
       method: 'GET',
     };
     return new Promise((resolve, reject) => {
@@ -181,7 +173,6 @@ module.exports = class VideoServer {
     return new Promise((resolve, reject) => {
       request(options, (error, response, body) => {
         if (response) {
-          console.log(body);
           resolve(body);
         } else {
           reject();
@@ -194,24 +185,32 @@ module.exports = class VideoServer {
     this.playerState = newstate;
   }
 
-  playVideo(message) {
-    const ID = this.extractVideoID(message.message);
+  getVideoID(depeche) {
+    this.regExp = new RegExp(/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/);
+    const match = depeche.message.match(this.regExp);
+    return (match && match[7].length === 11) ? match[7] : console.error('NO videoID');
+  }
+
+  /* eslint no-control-regex: off  */
+  /* eslint no-useless-escape: off */
+  playVideo(depeche) {
+    const ID = this.getVideoID(depeche);
     if (ID !== undefined) {
       this.getVideoStats(ID).then((body) => {
-        if (+JSON.parse(body).items['0'].statistics.viewCount > 20000 || Queue.checkWhitelist(message.chatter)) {
-          this.queue.toTimeout(message.chatter);
-          this.getVideoInfo(ID).then(() => {
-            this.currentVideo = body;
-            this.controls.send(JSON.stringify({ event: 'video-data', message: body }));
-            this.bot.send(JSON.stringify({ event: 'clip-data', message: body, chatter: message.chatter }));
+        if (+JSON.parse(body).items['0'].statistics.viewCount > 20000 || Queue.checkWhitelist(depeche.chatter)) {
+          this.queue.toTimeout(depeche.chatter);
+          this.getVideoInfo(ID).then((info) => {
+            this.currentVideo = info;
+            this.controls.send(JSON.stringify({ event: 'video-data', message: info }));
+            this.bot.send(JSON.stringify({ event: 'clip-data', message: info, chatter: depeche.chatter }));
           });
-          this.monitor.send(JSON.stringify({ event: 'play', message: ID, chatter: message.chatter }));
+          this.monitor.send(JSON.stringify({ event: 'play', message: ID, chatter: depeche.chatter }));
         } else {
-          this.bot.send(JSON.stringify({ event: 'clip-error', chatter: message.chatter, message: 'ItsBoshyTime Недостаточно просмотров для запуска.' }));
+          this.bot.send(JSON.stringify({ event: 'clip-error', chatter: depeche.chatter, message: 'ItsBoshyTime Недостаточно просмотров для запуска.' }));
         }
       });
     } else {
-      this.bot.send(JSON.stringify({ event: 'clip-error', chatter: message.chatter, message: `ItsBoshyTime  Что-то не так с ссылкой на клип, @${message.chatter}. Проверь ее валидность и попробуй еще раз.` }));
+      this.bot.send(JSON.stringify({ event: 'clip-error', chatter: depeche.chatter, message: `ItsBoshyTime  Что-то не так с ссылкой на клип, @${depeche.chatter}. Проверь ее валидность и попробуй еще раз.` }));
     }
   }
 };
