@@ -1,146 +1,138 @@
-'use strict'
-let tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/player_api";
-let firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-let player, remote;
+const tag = document.createElement('script');
+tag.src = 'https://www.youtube.com/player_api';
+const firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+let player;
+let remote;
 let ws;
 let connectionCounts = 0;
 
 function setConnection() {
-  connectionCounts++;
+  connectionCounts += 1;
   ws = new WebSocket(`ws://${window.location.host.split(':')[0]}:3001`);
-  ws.onopen = function() {
-    console.log("Соединение установлено.");
+  ws.onopen = () => {
+    console.log('Соединение установлено.');
     if (connectionCounts > 1) {
-      ws.send(JSON.stringify({event: 'ytp-loaded', message: 'YT-Player is loaded...'}));
+      ws.send(JSON.stringify({ event: 'ytp-loaded', message: 'YT-Player is loaded...' }));
     }
   };
-  ws.onclose = function(event) {
+  ws.onclose = (event) => {
     if (event.wasClean) {
       console.log('Соединение закрыто чисто');
     } else {
       console.log('Обрыв соединения');
-      setTimeout(()=> {
+      setTimeout(() => {
         setConnection();
       }, 5000);
     }
-    console.log('Code: ' + event.code + '\n Reason: ' + event.reason);
+    console.log(`Code: ${event.code}\n Reason: ${event.reason}`);
   };
-  ws.onerror = function(error) {
-    console.log("Ошибка " + error.message);
+  ws.onerror = (error) => {
+    console.log(`Ошибка ${error.message}`);
   };
   ws.onmessage = (event) => {
-    let depeche = JSON.parse(event.data);
+    const depeche = JSON.parse(event.data);
     switch (depeche.event) {
       case 'play':
-          player.loadVideoById(depeche.message);
-          ws.send(JSON.stringify({event: 'state', message: 'playing'}));
-  	      document.getElementById("ytplayer").style.display = "block";
+        player.loadVideoById(depeche.message);
+        ws.send(JSON.stringify({ event: 'state', message: 'playing' }));
+        document.getElementById('ytplayer').style.display = 'block';
         break;
       case 'remote':
         remote.select(depeche.message, depeche.value);
         break;
       case 'current-state-request':
-        ws.send(JSON.stringify({event:'current-state-data', message: { state: player.getPlayerState(), volume: player.getVolume(), muted: player.isMuted()}}));
+        ws.send(JSON.stringify({ event: 'current-state-data', message: { state: player.getPlayerState(), volume: player.getVolume(), muted: player.isMuted() } }));
         break;
       default:
-      console.error('something wrong');
+        console.error('something wrong');
     }
   };
-};
+}
 setConnection();
 
 function Remote() {
-  this.element = document.getElementById("ytplayer");
+  this.element = document.getElementById('ytplayer');
 }
 
-Remote.prototype.play = function () {
+Remote.prototype.play = () => {
   player.playVideo();
-  ws.send(JSON.stringify({event: 'state', message: 'playing'}));
-  this.element.style.display = "block";
+  ws.send(JSON.stringify({ event: 'state', message: 'playing' }));
+  this.element.style.display = 'block';
 };
-Remote.prototype.pause = function () {
+Remote.prototype.pause = () => {
   player.pauseVideo();
-  ws.send(JSON.stringify({event: 'state', message: 'paused'}));
-  this.element.style.display = "block";
+  ws.send(JSON.stringify({ event: 'state', message: 'paused' }));
+  this.element.style.display = 'block';
 };
-Remote.prototype.stop = function () {
-    player.stopVideo();
-    this.element.style.display = "none";
-    ws.send(JSON.stringify({event: 'state', message: 'stoped'}));
-    // ws.send(JSON.stringify({event: 'state', message: 'showed'}));
+Remote.prototype.stop = () => {
+  player.stopVideo();
+  this.element.style.display = 'none';
+  ws.send(JSON.stringify({ event: 'state', message: 'stoped' }));
 };
-Remote.prototype.hide = function () {
-  this.element.style.display = "none";
-  ws.send(JSON.stringify({event: 'state', message: 'hided'}));
+Remote.prototype.hide = () => {
+  this.element.style.display = 'none';
+  ws.send(JSON.stringify({ event: 'state', message: 'hided' }));
 };
-Remote.prototype.show = function () {
-  this.element.style.display = "block";
-  ws.send(JSON.stringify({event: 'state', message: 'showed'}));
+Remote.prototype.show = () => {
+  this.element.style.display = 'block';
+  ws.send(JSON.stringify({ event: 'state', message: 'showed' }));
 };
 
-Remote.prototype.select = function (e, val) {
+Remote.prototype.select = (e, val) => {
   switch (e) {
     case 'skip':
       remote.stop();
-    break;
+      break;
     case 'mute':
       player.mute();
-    break;
+      break;
     case 'unmute':
       player.unMute();
-    break;
+      break;
     case 'play':
       remote.play();
-    break;
+      break;
     case 'pause':
       remote.pause();
-    break;
+      break;
     case 'hide':
       remote.hide();
-    break;
+      break;
     case 'show':
       remote.show();
-    break;
+      break;
     case 'volume':
       player.setVolume(val);
-    break;
+      break;
     default:
-
   }
 };
 
-
-function checkQueue(chatter) {
-  return !queue.includes(chatter);
+function closeWindow(event) {
+  ws.send(JSON.stringify({ event: 'current-state-data', message: { state: event.data, volume: player.getVolume(), muted: player.isMuted() } }));
+  if (event.data === 0) {
+    document.getElementById('ytplayer').style.display = 'none';
+    ws.send(JSON.stringify({ event: 'state', message: 'stoped' }));
+  }
 }
-
+/* eslint no-unused-vars: "off" */
+/* global YT */
 function onYouTubePlayerAPIReady() {
-  new Promise((resolve, reject) => {
+  new Promise((resolve) => {
     player = new YT.Player('ytplayer', {
       height: '100%',
       width: '100%',
-      // videoId: 'sEWx6H8gZH8',
       events: {
-        'onReady': resolve,
-        'onStateChange': closeWindow
-      }
+        onReady: resolve,
+        onStateChange: closeWindow,
+      },
     });
   }).then((event) => {
-      remote = new Remote();
-      event.target.setVolume(15);
-  	  document.getElementById("ytplayer").style.display = "none";
-      console.log('player loaded');
-      ws.send(JSON.stringify({event: 'ytp-loaded', message: 'YT-Player is loaded...'}));
+    remote = new Remote();
+    event.target.setVolume(15);
+    document.getElementById('ytplayer').style.display = 'none';
+    console.log('player loaded');
+    ws.send(JSON.stringify({ event: 'ytp-loaded', message: 'YT-Player is loaded...' }));
   });
-}
-
-function closeWindow(event) {
-  ws.send(JSON.stringify({event: 'current-state-data', message: { state: event.data, volume: player.getVolume(), muted: player.isMuted()}}));
-  if (event.data == 0) {
-    // player.destroy();
-	  document.getElementById("ytplayer").style.display = "none";
-    ws.send(JSON.stringify({event: 'state', message: 'stoped'}));
-  }
 }

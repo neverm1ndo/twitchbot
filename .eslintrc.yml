@@ -1,0 +1,9 @@
+ extends:
+   - 'airbnb-base'
+ env:
+   node: true
+   browser: true
+ rules:
+   no-console: 'off'
+   max-len: ["error", { "code": 250, "tabWidth": 4 }]
+   no-alert: 'off'
