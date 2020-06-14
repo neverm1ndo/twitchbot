@@ -3,9 +3,8 @@ module.exports = {
   delay: 400000, // делей между различными ссылками <- 2 min
   prefix: '!',
   manual: true,
-  chat: false,
+  chat: true,
   silent: false,
-  web: false,
   mmr: 6800,
   links: {
     vk: 'https://vk.com/diktoor',
