@@ -1,15 +1,16 @@
-const express = require('express');
-const path = require('path');
-const WebSocket = require('ws');
 const fs = require('fs');
+const path = require('path');
+const express = require('express');
 const request = require('request');
+const WebSocket = require('ws');
 const Queue = require('../lib/queue.module.js');
+const qCD = require('../configs/bot.config').queueCD;
 
 module.exports = class VideoServer {
   constructor() {
     this.app = express();
     this.wss = new WebSocket.Server({ port: 3001 });
-    this.queue = new Queue({ cooldown: 20 });
+    this.queue = new Queue({ cooldown: qCD });
     this.monitor = undefined;
     this.controls = undefined;
     this.karaoka = undefined;

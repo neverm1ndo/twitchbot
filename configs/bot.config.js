@@ -5,6 +5,7 @@ module.exports = {
   manual: true,
   chat: true,
   silent: false,
+  queueCD: 20,
   mmr: 6800,
   links: {
     vk: 'https://vk.com/diktoor',
