@@ -3,7 +3,7 @@ const path = require('path');
 const WebSocket = require('ws');
 const fs = require('fs');
 const request = require('request');
-const Queue = require('./lib/queue.module.js');
+const Queue = require('../lib/queue.module.js');
 
 module.exports = class VideoServer {
   constructor() {
@@ -21,7 +21,7 @@ module.exports = class VideoServer {
       volume: '',
       muted: '',
     };
-    this.key = JSON.parse(fs.readFileSync(`${__dirname}/etc/google.api.key.json`)).key;
+    this.key = JSON.parse(fs.readFileSync(`${__dirname}/../etc/google.api.key.json`)).key;
     this.wss.on('connection', (ws) => {
       ws.on('message', (message) => {
         const depeche = JSON.parse(message);
@@ -48,7 +48,7 @@ module.exports = class VideoServer {
             console.log('> \x1b[32mControls connected\x1b[0m', ' localhost:3000/controls');
             break;
           case 'speaker-connection':
-            this.speaker = ws; // saving karaoka socket
+            this.speaker = ws; // saving speaker socket
             this.speaker.send(JSON.stringify({ event: 'connection', message: 'Connected' }));
             console.log('> \x1b[32mSpeaker connected\x1b[0m', ' localhost:3000/speaker');
             break;
@@ -117,16 +117,16 @@ module.exports = class VideoServer {
   start() {
     this.app.use(express.static(path.join(__dirname, 'server')));
     this.app.get('/', (req, res) => {
-      res.sendFile(`${__dirname}/index.html`);
+      res.sendFile(`${__dirname}/yt-features/index.html`);
     });
     this.app.get('/controls', (req, res) => {
-      res.sendFile(`${__dirname}/server/controls.html`);
+      res.sendFile(`${__dirname}/yt-features/controls.html`);
     });
     this.app.get('/karaoka', (req, res) => {
-      res.sendFile(`${__dirname}/server/karaoka.html`);
+      res.sendFile(`${__dirname}/karaoka/karaoka.html`);
     });
     this.app.get('/speaker', (req, res) => {
-      res.sendFile(`${__dirname}/server/speaker.html`);
+      res.sendFile(`${__dirname}/speaker-features/speaker.html`);
     });
     this.app.listen(3000, () => {
       console.log('  Video server listening on port 3000! Add http://localhost:3000 to your OBS browser!\n');
