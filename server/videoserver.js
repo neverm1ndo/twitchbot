@@ -116,7 +116,7 @@ module.exports = class VideoServer {
   }
 
   start() {
-    this.app.use(express.static(path.join(__dirname, 'server')));
+    this.app.use(express.static(path.join(__dirname)));
     this.app.get('/', (req, res) => {
       res.sendFile(`${__dirname}/yt-features/index.html`);
     });
