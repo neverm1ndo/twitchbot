@@ -34,6 +34,42 @@
             return text;
           }
         }
+        class Player {
+          constructor() {
+            this.audio = new Audio();
+            this.audio.src = undefined;
+            this.audio.controls = false;
+            this.audio.autoplay = true;
+            document.body.appendChild(this.audio);
+            this.context = new AudioContext();
+            this.buffer = undefined;
+          }
+          loadSource(path) {
+            console.log(path);
+            let request = new XMLHttpRequest();
+            request.open("GET", path, true);
+            request.responseType= 'arraybuffer';
+            request.onload = () => {
+              this.context.decodeAudioData(request.response, (buffer) => {
+                this.buffer = buffer;
+                if (this.buffer) {
+                  this.play();
+                }
+              });
+            };
+            request.send();
+          };
+          play() {
+            let source = this.context.createBufferSource();
+            source.buffer = this.buffer;
+            source.connect(this.context.destination);  // added
+            source.start(0);
+            console.log('playing');
+          }
+        }
+        // init player
+        let player = new Player();
+
         function setConnection() {
           ws = new WebSocket(`ws://${window.location.host.split(':')[0]}:3001`);
             console.log(window.location.host);
@@ -61,6 +97,9 @@
               case 'hl_msg':
               console.log(depeche.message);
                 speak(Filter.separate(depeche.message));
+              break;
+              case 'sound_msg':
+                player.loadSource(depeche.message);
               break;
               case 'connection':
                 console.log(depeche.message);

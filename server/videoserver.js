@@ -6,11 +6,15 @@ const WebSocket = require('ws');
 const Queue = require('../lib/queue.module.js');
 const qCD = require('../configs/bot.config').queueCD;
 
+//  уникальный Id находится в configs/clientid.json
+const clientID = JSON.parse(fs.readFileSync(`${__dirname}/../configs/clientid.json`)).id;
+
 module.exports = class VideoServer {
   constructor() {
     this.app = express();
     this.wss = new WebSocket.Server({ port: 3001 });
     this.queue = new Queue({ cooldown: qCD });
+    this.globalCD = false;
     this.monitor = undefined;
     this.controls = undefined;
     this.karaoka = undefined;
@@ -98,6 +102,15 @@ module.exports = class VideoServer {
             this.bot = ws;
             console.log('> \x1b[32mBot connected\x1b[0m');
             break;
+          case 'play-sound':
+            if (this.globalCD === false) {
+              this.speaker.send(JSON.stringify({ event: 'sound_msg', message: depeche.message }));
+              this.globalCD = true;
+              setTimeout(() => {
+                this.globalCD = false;
+              }, 30000);
+            }
+            break;
           case 'req-queue':
             this.bot.send(JSON.stringify({ event: 'queue', message: this.queue.list }));
             break;
@@ -117,17 +130,23 @@ module.exports = class VideoServer {
 
   start() {
     this.app.use(express.static(path.join(__dirname)));
-    this.app.get('/', (req, res) => {
+    this.app.get(`/${clientID}`, (req, res) => {
       res.sendFile(`${__dirname}/yt-features/index.html`);
     });
     this.app.get('/controls', (req, res) => {
-      res.sendFile(`${__dirname}/yt-features/controls.html`);
+      if (req.query.id === clientID) {
+        res.sendFile(`${__dirname}/yt-features/controls.html`);
+      }
     });
     this.app.get('/karaoka', (req, res) => {
-      res.sendFile(`${__dirname}/karaoka/karaoka.html`);
+      if (req.query.id === clientID) {
+        res.sendFile(`${__dirname}/karaoka/karaoka.html`);
+      }
     });
     this.app.get('/speaker', (req, res) => {
-      res.sendFile(`${__dirname}/speaker-features/speaker.html`);
+      if (req.query.id === clientID) {
+        res.sendFile(`${__dirname}/speaker-features/speaker.html`);
+      }
     });
     this.app.listen(3000, () => {
       console.log('  Video server listening on port 3000! Add http://localhost:3000 to your OBS browser!\n');

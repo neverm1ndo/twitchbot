@@ -17,7 +17,7 @@
   "сорри" : { "path" : "./probs/sorry_cs.mp3", "delay": 180000 },
   "зашквар" : { "path" : "./probs/zashkvar_cs.mp3", "delay": 180000 },
   "всоляного" : { "path" : "./probs/vsolyanogo_cs.mp3", "delay": 180000 },
-  "найс" : { "path" : "./probs/niceigraesh.mp3", "delay": 180000 },
+  "найс" : { "path" : "./probs/niceigraesh_cs.mp3", "delay": 180000 },
   "тинкер" : { "path" : "./probs/tinker_cs.mp3", "delay": 180000 },
   "ай" : { "path" : "./probs/aiaiai.mp3", "delay": 180000 },
   "конфликт" : { "path" : "./probs/konflikt.mp3", "delay": 180000 },

@@ -9,3 +9,4 @@ etc/*.key.json
 spec/*.js
 log.txt
 *.dog
+clientid.json
