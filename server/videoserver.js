@@ -38,6 +38,7 @@ module.exports = class VideoServer {
             break;
           case 'controls-connection':
             this.controls = ws; // saving controls socket
+            this.bot.send(JSON.stringify({ event: 'wakeup', message: null }));
             try { this.monitor.send(JSON.stringify({ event: 'current-state-request' })); } catch (e) { console.log('ERROR: Waiting for monitor...'); }
             if (this.currentVideo) {
               this.controls.send(JSON.stringify({ event: 'video-data', message: this.currentVideo }));
@@ -123,6 +124,21 @@ module.exports = class VideoServer {
             break;
           default:
             console.log('> Not responded message: ', message);
+        }
+      });
+      ws.on('close', () => {
+        switch (ws) {
+          case this.monitor:
+            console.log('> \x1b[31mMonitor disconnected\x1b[0m');
+            break;
+          case this.controls:
+            console.log('> \x1b[31mControls disconnected\x1b[0m');
+            this.bot.send(JSON.stringify({ event: 'shutup', message: null }));
+            break;
+          case this.speaker:
+            console.log('> \x1b[31mSpeaker disconnected\x1b[0m');
+            break;
+          default: break;
         }
       });
     });
