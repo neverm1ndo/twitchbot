@@ -134,9 +134,11 @@ function onYouTubePlayerAPIReady() {
     player = new YT.Player('ytplayer', {
       height: '100%',
       width: '100%',
+      playerVars: { autoplay: 1, controls: 0 },
       events: {
         onReady: resolve,
         onStateChange: closeWindow,
+        onError: closeWindow,
       },
     });
   }).then((event) => {
