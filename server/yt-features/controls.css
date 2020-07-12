@@ -1,5 +1,5 @@
 html body {
-  background: rgba(0,0,0,1);
+  background: #1f1e1f;
 }
 .panel {
   position: fixed;
@@ -53,7 +53,7 @@ html body {
   align-items: center;
   justify-content: center;
   /* filter: blur(0.8)!important; */
-  background: rgba(0,0,0,1);
+  background: #1f1e1f;
 }
 .error p {
   font-size: 12px;

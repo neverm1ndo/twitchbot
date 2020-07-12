@@ -15,24 +15,32 @@
   </head>
 
   <body>
-    <h1></h1>
-    <button id="accept" type="button" name="button">Разрешить управление спикером</button>
-    <p></p>
-    <small></small>
-    <input id="volume" type="range" min="0" max="100" name="volume" value="35">
+    <div class="container">
+      <button id="accept" type="button" name="button">Разрешить управление спикером</button>
+      <div class="imps">
+        <div>
+          <label id="vol_label"for="volume1"><span style="float: left; margin-left: 75px">Speaker</span><span style="float: right; margin-right: 15px;" id="sp_vol">100</span></label>
+          <input id="volume" name="vol1" class="slider" type="range" min="0" max="100" name="volume" value="35">
+        </div>
+        <div>
+          <label id="vol_label2"for="volume2"><span style="float: left; margin-left: 75px">Sounds</span><span style="float: right; margin-right: 15px;" id="sou_vol">100</span></label>
+          <input id="volume2" class="slider" type="range" min="0" max="100" name="volume2" value="35">
+        </div>
+      </div>
+    </div>
     <script type="text/javascript">
         let ws;
 
         let volume = window.localStorage.getItem('volume');
         let volumeRanger = document.querySelector('#volume');
             volumeRanger.value = volume*100;
+            document.querySelector('#sp_vol').innerHTML = volumeRanger.value;
 
         class Filter {
           constructor() {
           }
           static separate (text) {
             const schedule = ['/^', 'пидор', 'пидр', 'пидарас', 'пидорас'];
-            // text = text.replace(' ', '');
             schedule.forEach((word) => {
             text = text.replace(new RegExp(`${word}`, 'gi'), 'уууууу');
             });
@@ -45,18 +53,25 @@
             this.audio.src = undefined;
             this.audio.controls = false;
             this.audio.autoplay = true;
-            this.audio.volume = volume;
-            this.pth = document.querySelector('small');
-            document.body.appendChild(this.audio);
-          }
+            this.audio.volume = window.localStorage.getItem('volumePlayer');
 
+            document.body.appendChild(this.audio);
+
+            this.playerRanger = document.querySelector('#volume2');
+            this.playerRanger.value = this.audio.volume*100;
+            document.querySelector('#sou_vol').innerHTML = this.playerRanger.value;
+            this.playerRanger.addEventListener('input', () => {
+              this.audio.volume = this.playerRanger.value/100;
+              document.querySelector('#sou_vol').innerHTML = this.playerRanger.value;
+              window.localStorage.setItem('volumePlayer', this.audio.volume);
+            });
+          }
           set vol(volume) {
             this.audio.volume = volume;
           }
           loadSource(path) {
             this.audio.src = path;
             this.audio.play();
-            this.pth.innerHTML = path;
           };
         }
 
@@ -108,8 +123,6 @@
         var pitchValue = 1;
         var rateValue = 1;
 
-        let msg = document.querySelector('p');
-
         var voices = [];
 
         let player;
@@ -117,13 +130,12 @@
 
         var btn = document.querySelector('#accept');
             btn.addEventListener('click', ()=> {
-              msg.innerHTML = 'Разрешено управление спикером';
               btn.style.display = 'none';
               volumeRanger.style.display = 'block';
             })
-            volumeRanger.addEventListener('change', () => {
+            volumeRanger.addEventListener('input', () => {
               volume = volumeRanger.value/100;
-              player.vol = volume;
+              document.querySelector('#sp_vol').innerHTML = volumeRanger.value;
               window.localStorage.setItem('volume', volume);
             })
         function setSpeech() {
@@ -155,7 +167,6 @@
         function speak (text){
           if (synth.speaking) {
               console.error('speechSynthesis.speaking');
-              msg.innerHTML = 'Ошибка';
               return;
           }
           if (text !== '') {
@@ -169,7 +180,6 @@
             } else {
                 selectedOption = 'Google русский';
             }
-            msg.innerHTML = text;
             let utterThis = new SpeechSynthesisUtterance(text);
             for(i = 0; i < voices.length ; i++) {
               if(voices[i].name === selectedOption) {

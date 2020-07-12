@@ -48,7 +48,7 @@ function showVideoData(data) {
     panel.style.background = `url('${data.items['0'].snippet.thumbnails.maxres.url}') no-repeat 0 0`;
   } catch (e) {
     console.log(e);
-    panel.style.background = 'rgba(0, 0, 0, 1)';
+    panel.style.background = '#1f1e1f';
   }
 }
 
