@@ -40,6 +40,7 @@
             this.audio.src = undefined;
             this.audio.controls = false;
             this.audio.autoplay = true;
+            this.audio.volume =  window.localStorage.getItem('volume');
             document.body.appendChild(this.audio);
             this.context = new AudioContext();
             this.buffer = undefined;
@@ -127,7 +128,6 @@
 
         var btn = document.querySelector('#accept');
             btn.addEventListener('click', ()=> {
-              // speak('');
               msg.innerHTML = 'Разрешено управление спикером';
               btn.style.display = 'none';
               volumeRanger.style.display = 'block';
