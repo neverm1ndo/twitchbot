@@ -22,6 +22,10 @@
     <script type="text/javascript">
         let ws;
 
+        let volume = window.localStorage.getItem('volume');
+        let volumeRanger = document.querySelector('#volume');
+            volumeRanger.value = volume*100;
+
         class Filter {
           constructor() {
           }
@@ -40,7 +44,7 @@
             this.audio.src = undefined;
             this.audio.controls = false;
             this.audio.autoplay = true;
-            this.audio.volume =  window.localStorage.getItem('volume');
+            this.audio.volume = volume;
             document.body.appendChild(this.audio);
             this.context = new AudioContext();
             this.buffer = undefined;
@@ -118,9 +122,6 @@
 
         var pitchValue = 1;
         var rateValue = 1;
-        let volume = window.localStorage.getItem('volume');
-        let volumeRanger = document.querySelector('#volume');
-            volumeRanger.value = volume*100;
 
         let msg = document.querySelector('p');
 
