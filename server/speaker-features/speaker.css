@@ -8,14 +8,17 @@ body, html {
   position: fixed;
   top: 0px;
   left: 0px;
+  font-family: 'Arial', sans-serif;
+  text-align: center;
 }
 button {
-  position: absolute;
-  top: 30%;
+  position: relative;
+  top: 50%;
   margin: 0 auto;
   left: 0;
   right: 0;
-  font-size: 20px;
+  font-size: 12px;
+  border-radius: 3px;
 }
 #mute {
   top: 70%;
@@ -28,6 +31,5 @@ button {
   right: 0;
 }
 p {
-  font-family: 'Arial', sans-serif;
-  font-size: 18px;
+  font-size: 12px;
 }

@@ -1,9 +1,8 @@
 html body {
+  background: rgba(0,0,0,1);
 }
 .panel {
-  position: absolute;
-  /* width: 500px; */
-  /* height: 550px; */
+  position: fixed;
   margin: 0px auto;
   width: 100vw;
   height: 100vh;
@@ -17,13 +16,27 @@ html body {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* filter: blur(0.8)!important; */
-  background: rgba(0,0,0,1);
+  filter: blur(5px);
+}
+.panel2 {
+  position: absolute;
+  margin: 0px auto;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: 'Arial', sans-serif;
+  background-size: cover!important;
+  background-position: center!important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .error {
   position: absolute;
-  /* width: 500px; */
-  /* height: 550px; */
   margin: 0px auto;
   width: 100vw;
   height: 100vh;
@@ -49,19 +62,20 @@ html body {
   position: relative;
   top: 5px;
 }
-.panel .vertical {
+.panel2 .vertical {
   /* display: flex; */
   /* width: 100vw;
   height: 100vh; */
   width: 400px;
   height: 150px;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.2);
   color: #dfdfdf;
   font-weight: 400;
   backdrop-filter: blur(20px)!important;
+  -webkit-backdrop-filter: blur(20px)!important;
   /* overflow: hidden; */
 }
-.panel .vertical .title {
+.panel2 .vertical .title {
   width: 370px;
   padding-left: 15px;
   padding-right: 15px;
@@ -70,7 +84,7 @@ html body {
   margin-bottom: 10px;
   text-overflow: ellipsis;
 }
-.panel .vertical span {
+.panel2 .vertical span {
   font-size: 16px;
   white-space: nowrap;
   width: 400px;

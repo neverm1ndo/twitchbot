@@ -18,6 +18,7 @@
     <h1></h1>
     <button id="accept" type="button" name="button">Разрешить управление спикером</button>
     <p></p>
+    <small></small>
     <input id="volume" type="range" min="0" max="100" name="volume" value="35">
     <script type="text/javascript">
         let ws;
@@ -45,11 +46,17 @@
             this.audio.controls = false;
             this.audio.autoplay = true;
             this.audio.volume = volume;
+            this.pth = document.querySelector('small');
             document.body.appendChild(this.audio);
+          }
+
+          set vol(volume) {
+            this.audio.volume = volume;
           }
           loadSource(path) {
             this.audio.src = path;
             this.audio.play();
+            this.pth.innerHTML = path;
           };
         }
 
@@ -106,17 +113,17 @@
         var voices = [];
 
         let player;
+        player = new Player();
 
         var btn = document.querySelector('#accept');
             btn.addEventListener('click', ()=> {
               msg.innerHTML = 'Разрешено управление спикером';
               btn.style.display = 'none';
               volumeRanger.style.display = 'block';
-              // init player
-              player = new Player();
             })
             volumeRanger.addEventListener('change', () => {
               volume = volumeRanger.value/100;
+              player.vol = volume;
               window.localStorage.setItem('volume', volume);
             })
         function setSpeech() {
