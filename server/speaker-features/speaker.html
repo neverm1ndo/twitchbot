@@ -46,34 +46,12 @@
             this.audio.autoplay = true;
             this.audio.volume = volume;
             document.body.appendChild(this.audio);
-            this.context = new AudioContext();
-            this.buffer = undefined;
           }
           loadSource(path) {
-            console.log(path);
-            let request = new XMLHttpRequest();
-            request.open("GET", path, true);
-            request.responseType= 'arraybuffer';
-            request.onload = () => {
-              this.context.decodeAudioData(request.response, (buffer) => {
-                this.buffer = buffer;
-                if (this.buffer) {
-                  this.play();
-                }
-              });
-            };
-            request.send();
+            this.audio.src = path;
+            this.audio.play();
           };
-          play() {
-            let source = this.context.createBufferSource();
-            source.buffer = this.buffer;
-            source.connect(this.context.destination);  // added
-            source.start(0);
-            console.log('playing');
-          }
         }
-        // init player
-        let player = new Player();
 
         function setConnection() {
           ws = new WebSocket(`ws://${window.location.host.split(':')[0]}:3001`);
@@ -127,11 +105,15 @@
 
         var voices = [];
 
+        let player;
+
         var btn = document.querySelector('#accept');
             btn.addEventListener('click', ()=> {
               msg.innerHTML = 'Разрешено управление спикером';
               btn.style.display = 'none';
               volumeRanger.style.display = 'block';
+              // init player
+              player = new Player();
             })
             volumeRanger.addEventListener('change', () => {
               volume = volumeRanger.value/100;
