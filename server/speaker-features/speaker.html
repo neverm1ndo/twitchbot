@@ -81,6 +81,7 @@
           ws.onopen = function() {
             console.log("Соединение установлено.");
             ws.send(JSON.stringify({event: 'speaker-connection'}));
+            populateVoiceList();
           };
 
           ws.onclose = function(event) {
@@ -172,8 +173,8 @@
           if (text !== '') {
             let selectedOption;
             console.log(voices);
-            if (text.includes(']p[')) {
-              let params = text.split(']p[');
+            if (text.includes(' --p ')) {
+              let params = text.split(' --p ');
                   text = params[0];
                   selectedOption = voices[params[1].split('|')[0]].name;
                   pitchValue = +params[1].split('|')[1];
@@ -193,7 +194,6 @@
             synth.speak(utterThis);
           }
         }
-        populateVoiceList();
         setConnection();
     </script>
   </body>
