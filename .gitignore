@@ -10,3 +10,4 @@ spec/*.js
 log.txt
 *.dog
 clientid.json
+client.*.json

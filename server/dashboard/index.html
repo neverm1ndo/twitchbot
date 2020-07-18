@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Users Dashboard</title>
+    <link rel="stylesheet" href="./dashboard/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <aside class="side">
+        <div class="">
+          <h1>omd shell</h1>
+        </div>
+        <div class="list">
+          <ul>
+            <li>Конфигурация бота</li>
+            <li>Автоматические сообщения</li>
+            <li>Нежелательные фразы</li>
+            <li>Список звуков</li>
+            <li>Ключи API</li>
+            <li>Белый список</li>
+          </ul>
+        </div>
+      </aside>
+      <main>
+        <div class="form">
+          <h1>Конфигурация бота</h1>
+        </hr>
+          <div class="form-item">
+            <label for="">Делей между различными ссылками (ms)</label>
+            <input type="text" id="dlinks" name="dlinks" value="">
+          </div>
+          <div class="form-item">
+            <label for="">Префикс</label>
+            <input type="text" id="prefix" name="prefix" value="">
+          </div>
+          <div class="form-item">
+            <label for="">Кд очереди (min)</label>
+            <input type="text" id="qcd" name="qcd" value="">
+          </div>
+          <div class="form-item">
+            <label for="">MMR</label>
+            <input type="text" id="mmr" name="mmr" value="">
+          </div>
+          <div class="form-item">
+            <p>Ссылки на медиа</p>
+            <div class="">
+              <label for="">VK</label>
+              <input type="text" id="media-link-vk" name="media-link-vk" value="">
+            </div>
+            <div class="">
+              <label for="">Dotabuff</label>
+              <input type="text" id="media-link-db" name="media-link-db" value="">
+            </div>
+            <div class="">
+              <label for="">Donationalerts</label>
+              <input type="text" id="media-link-da" name="media-link-da" value="">
+            </div>
+          </div>
+          <button id="saveconf" type="button" name="button" class="mt-1">save</button>
+        </div>
+        <hr>
+        <div class="form" id="avt-msg-form"></div>
+      </main>
+    </div>
+    <script src="./dashboard/ds.js" charset="utf-8"></script>
+  </body>
+</html>

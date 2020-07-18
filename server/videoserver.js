@@ -4,16 +4,16 @@ const express = require('express');
 const request = require('request');
 const WebSocket = require('ws');
 const Queue = require('../lib/queue.module.js');
-const qCD = require('../configs/bot.config').queueCD;
 
 //  уникальный Id находится в configs/clientid.json
 const clientID = JSON.parse(fs.readFileSync(`${__dirname}/../configs/clientid.json`)).id;
 
 module.exports = class VideoServer {
   constructor() {
+    this.conf = JSON.parse(fs.readFileSync(`${__dirname}/../configs/client.${clientID}.json`));
     this.app = express();
     this.wss = new WebSocket.Server({ port: 3001 });
-    this.queue = new Queue({ cooldown: qCD });
+    this.queue = new Queue({ cooldown: this.conf.queueCD });
     this.globalCD = false;
     this.monitor = undefined;
     this.controls = undefined;
@@ -122,6 +122,16 @@ module.exports = class VideoServer {
               this.bot.send(JSON.stringify({ event: 'ytcd-error', message: user }));
             });
             break;
+          case 'amsg-reconf':
+            fs.writeFileSync(`${__dirname}/../etc/automessages.list.json`, JSON.stringify({ m: depeche.message }));
+            this.bot.send(JSON.stringify({ event: 'amsg-reconf', message: depeche.message }));
+            break;
+          case 'save-conf':
+            this.conf = depeche.message;
+            this.queue.innerCooldown = this.conf.qcd;
+            fs.writeFileSync(`${__dirname}/../configs/client.${clientID}.json`, JSON.stringify(depeche.message));
+            this.bot.send(JSON.stringify({ event: 'save-conf', message: depeche.message }));
+            break;
           default:
             console.log('> Not responded message: ', message);
         }
@@ -144,10 +154,19 @@ module.exports = class VideoServer {
     });
   }
 
+  get config() {
+    return this.conf;
+  }
+
   start() {
     this.app.use(express.static(path.join(__dirname)));
+    this.app.get('/monitor', (req, res) => {
+      if (req.query.id === clientID) {
+        res.sendFile(`${__dirname}/yt-features/index.html`);
+      }
+    });
     this.app.get(`/${clientID}`, (req, res) => {
-      res.sendFile(`${__dirname}/yt-features/index.html`);
+      res.sendFile(`${__dirname}/dashboard/index.html`);
     });
     this.app.get('/controls', (req, res) => {
       if (req.query.id === clientID) {
@@ -162,6 +181,12 @@ module.exports = class VideoServer {
     this.app.get('/speaker', (req, res) => {
       if (req.query.id === clientID) {
         res.sendFile(`${__dirname}/speaker-features/speaker.html`);
+      }
+    });
+    /// BOT API
+    this.app.get('/configuration', (req, res) => {
+      if (req.query.id === clientID) {
+        res.send(JSON.stringify({ config: this.conf, amsg: JSON.parse(fs.readFileSync(`${__dirname} ./../etc/automessages.list.json`)) }));
       }
     });
     this.app.listen(3000, () => {
