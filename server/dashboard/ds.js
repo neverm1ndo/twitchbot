@@ -47,6 +47,7 @@ class FormItem {
     if (options.value) this.input.value = options.value;
     this.close = document.createElement('button');
     this.close.innerHTML = 'X';
+    this.close.classList.add('btn-close')
 
     this.close.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -72,12 +73,14 @@ class Form {
     this.title = document.createElement('h1');
     this.title.innerHTML = options.title;
     this.submit = document.createElement('button');
+    this.submit.classList.add('btn');
     this.box = document.createElement('div');
     this.box.classList.add('input-box');
     this.submit.innerHTML = 'submit';
     this.addItem = document.createElement('button');
-    this.addItem.innerHTML = 'add';
-    this.submit.innerHTML = 'save';
+    this.addItem.classList.add('btn');
+    this.addItem.innerHTML = '+ Добавить';
+    this.submit.innerHTML = 'Сохранить';
 
     if (options.items && options.items.length > 0) {
       options.items.forEach((item) => {

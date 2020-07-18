@@ -7,9 +7,10 @@ aside {
   flex-grow: 2;
   align-self: flex-start;
   height: 100vh;
-  background: #cfcfcf;
+  background: #4e4e4e;
   flex-direction: column;
   overflow: auto;
+  color: #fdfdfd;
 }
 aside h1 {
   padding-left: 15px;
@@ -46,7 +47,7 @@ main {
   cursor: pointer;
 }
 .list ul li:hover {
-  background: #dfdfdf;
+  background: #6a6a6a;
 }
 .list ul li:last-child {
   border-bottom: none
@@ -106,7 +107,29 @@ main {
   /* min-width: 200px; */
   min-height: 100px;
   height: auto;
+  border-radius: 0px;
 }
 .mt-1 {
   margin-top: 1rem;
+}
+.btn {
+  line-height: 28px;
+  background: #4e4e4e;
+  color: #fdfdfd;
+  border: 1px solid #4e4e4e;
+  border-radius: 2px;
+  margin-top: 1em;
+  cursor: pointer;
+}
+.btn:hover, .btn-close:hover  {
+  filter: brightness(120%);
+}
+.btn-close {
+  line-height: 28px;
+  background: #B71C1C;
+  color: #fdfdfd;
+  border: 1px solid #B71C1C;
+  cursor: pointer;
+  /* border-radius: 2px;
+  margin-top: 1em; */
 }
