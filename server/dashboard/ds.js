@@ -153,7 +153,7 @@ class Configurator {
 
   async getConfiguration() {
     console.log(window.location.pathname);
-    this.response = await fetch(`http://localhost:3000/configuration?id=${window.location.pathname.substr(1)}`);
+    this.response = await fetch(`http://${window.location.hostname}:3000/configuration?id=${window.location.pathname.substr(1)}`);
     if (this.response.ok) {
       this.conf = await this.response.json();
     } else {
