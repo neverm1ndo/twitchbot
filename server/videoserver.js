@@ -186,7 +186,7 @@ module.exports = class VideoServer {
     /// BOT API
     this.app.get('/configuration', (req, res) => {
       if (req.query.id === clientID) {
-        res.send(JSON.stringify({ config: this.conf, amsg: JSON.parse(fs.readFileSync(`${__dirname} ./../etc/automessages.list.json`)) }));
+        res.send(JSON.stringify({ config: this.conf, amsg: JSON.parse(fs.readFileSync(`${__dirname}/../etc/automessages.list.json`)) }));
       }
     });
     this.app.listen(3000, () => {
