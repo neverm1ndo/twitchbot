@@ -47,7 +47,7 @@ class FormItem {
     if (options.value) this.input.value = options.value;
     this.close = document.createElement('button');
     this.close.innerHTML = 'X';
-    this.close.classList.add('btn-close')
+    this.close.classList.add('btn-close');
 
     this.close.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -66,6 +66,24 @@ class FormItem {
   }
 }
 
+class FormItemDouble extends FormItem {
+  constructor(options) {
+    super(options);
+    this.label.remove();
+    this.input.remove();
+    this.input = document.createElement('input');
+    this.label = document.createElement('input');
+    this.audio = document.createElement('audio');
+    this.audio.src = `./../${options.value.input}`;
+    this.audio.controls = true;
+    this.label.type = 'text';
+    this.item.append(this.label, this.input, this.close);
+    this.label.value = options.value.label;
+    this.input.value = options.value.input;
+    this.item.append(this.audio);
+  }
+}
+
 class Form {
   constructor(options) {
     this.form = document.createElement('div');
@@ -77,9 +95,17 @@ class Form {
     this.box = document.createElement('div');
     this.box.classList.add('input-box');
     this.submit.innerHTML = 'submit';
-    this.addItem = document.createElement('button');
-    this.addItem.classList.add('btn');
-    this.addItem.innerHTML = '+ Добавить';
+    if (options.adds) {
+      this.addItem = document.createElement('button');
+      this.addItem.classList.add('btn');
+      this.addItem.innerHTML = '+ Добавить';
+      this.addItem.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.box.append(new FormItem({ type: 'text', labeltext: `#${this.box.childNodes.length}` }).add());
+      });
+    } else {
+      this.addItem = document.createElement('div');
+    }
     this.submit.innerHTML = 'Сохранить';
 
     if (options.items && options.items.length > 0) {
@@ -90,10 +116,6 @@ class Form {
       this.items = document.createElement('hr');
     }
 
-    this.addItem.addEventListener('click', (e) => {
-      e.preventDefault();
-      this.box.append(new FormItem({ type: 'text', labeltext: `#${this.box.childNodes.length}` }).add());
-    });
     this.submit.addEventListener('click', (e) => {
       e.preventDefault();
       const messages = [];
@@ -132,8 +154,20 @@ class Configurator {
       da: document.querySelector('#media-link-da'),
     };
     this.amsg = document.querySelector('#avt-msg-form');
-    this.amsgForm = new Form({ name: 'amsg-reconf', title: 'Автоматические сообщения', items: [] });
+    this.amsgForm = new Form({
+      name: 'amsg-reconf', title: 'Автоматические сообщения', items: [], adds: true,
+    });
     this.amsg.append(this.amsgForm.add());
+    this.filter = document.querySelector('#filter-form');
+    this.filterForm = new Form({
+      name: 'filter-reconf', title: 'Нежелательные фразы', items: [], adds: false,
+    });
+    this.filter.append(this.filterForm.add());
+    this.sounds = document.querySelector('#sounds-form');
+    this.soundsForm = new Form({
+      name: 'sounds-reconf', title: 'Список звуков', items: [], adds: false,
+    });
+    this.sounds.append(this.soundsForm.add());
     this.saveconf = document.querySelector('#saveconf');
     this.saveconf.addEventListener('click', () => {
       ws.send(JSON.stringify({ event: 'save-conf', message: this.configure() }));
@@ -171,6 +205,12 @@ class Configurator {
     this.media.db.value = this.conf.config.links.dotabuff;
     this.conf.amsg.m.forEach((message, index) => {
       this.amsgForm.appendItem(new FormItem({ type: 'text', labeltext: `#${index + 1}`, value: message }));
+    });
+    this.filterForm.appendItem(new FormItem({ type: 'text', labeltext: 'Фильтр Бан', value: this.conf.filter.words }));
+    this.filterForm.appendItem(new FormItem({ type: 'text', labeltext: 'Фильтр Таймаут', value: this.conf.filter.timeout }));
+
+    Object.keys(this.conf.sounds).forEach((command) => {
+      this.soundsForm.appendItem(new FormItemDouble({ type: 'text', value: { label: command, input: this.conf.sounds[command].path } }));
     });
   }
 }

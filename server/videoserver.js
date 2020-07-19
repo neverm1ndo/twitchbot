@@ -34,7 +34,7 @@ module.exports = class VideoServer {
           case 'ytp-loaded':
             this.monitor = ws; // saving monitor socket
             this.monitor.send(JSON.stringify({ event: 'current-state-request' }));
-            console.log('> \x1b[32mMonitor connected\x1b[0m', ' localhost:3000');
+            console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[32mMonitor connected\x1b[0m', ' localhost:3000');
             break;
           case 'controls-connection':
             this.controls = ws; // saving controls socket
@@ -43,7 +43,10 @@ module.exports = class VideoServer {
             if (this.currentVideo) {
               this.controls.send(JSON.stringify({ event: 'video-data', message: this.currentVideo }));
             }
-            console.log('> \x1b[32mControls connected\x1b[0m', ' localhost:3000/controls');
+            console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[32mControls connected\x1b[0m');
+            break;
+          case 'dashboard-connection':
+            console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[32mСonnected to dashboard\x1b[0m');
             break;
           case 'karaoka-connection':
             this.karaoka = ws; // saving karaoka socket
@@ -56,7 +59,7 @@ module.exports = class VideoServer {
           case 'speaker-connection':
             this.speaker = ws; // saving speaker socket
             this.speaker.send(JSON.stringify({ event: 'connection', message: 'Connected' }));
-            console.log('> \x1b[32mSpeaker connected\x1b[0m', ' localhost:3000/speaker');
+            console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[32mSpeaker connected\x1b[0m', ' localhost:3000/speaker');
             break;
           case 'speaker-message':
             console.log(depeche.message);
@@ -101,7 +104,7 @@ module.exports = class VideoServer {
             break;
           case 'bot-client':
             this.bot = ws;
-            console.log('> \x1b[32mBot connected\x1b[0m');
+            console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[32mBot connected\x1b[0m');
             break;
           case 'play-sound':
             if (this.globalCD === false) {
@@ -132,21 +135,35 @@ module.exports = class VideoServer {
             fs.writeFileSync(`${__dirname}/../configs/client.${clientID}.json`, JSON.stringify(depeche.message));
             this.bot.send(JSON.stringify({ event: 'save-conf', message: depeche.message }));
             break;
+          case 'filter-reconf': {
+            const newfilter = { words: [], timeout: [] };
+            depeche.message[0].split(',').forEach((word) => {
+              newfilter.words.push(word);
+            });
+            if (depeche.message[1].length > 0) {
+              depeche.message[1].split(',').forEach((word) => {
+                newfilter.timeout.push(word);
+              });
+            }
+            fs.writeFileSync(`${__dirname}/../etc/banned.words.dict.json`, JSON.stringify(newfilter));
+            this.bot.send(JSON.stringify({ event: 'filter-reconf', message: null }));
+            break;
+          }
           default:
-            console.log('> Not responded message: ', message);
+            console.log('>', `[${ws._socket.remoteAddress}]`, ' Not responded message: ', message);
         }
       });
       ws.on('close', () => {
         switch (ws) {
           case this.monitor:
-            console.log('> \x1b[31mMonitor disconnected\x1b[0m');
+            console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[31mMonitor disconnected\x1b[0m');
             break;
           case this.controls:
-            console.log('> \x1b[31mControls disconnected\x1b[0m');
+            console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[31mControls disconnected\x1b[0m');
             this.bot.send(JSON.stringify({ event: 'shutup', message: null }));
             break;
           case this.speaker:
-            console.log('> \x1b[31mSpeaker disconnected\x1b[0m');
+            console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[31mSpeaker disconnected\x1b[0m');
             break;
           default: break;
         }
@@ -186,7 +203,12 @@ module.exports = class VideoServer {
     /// BOT API
     this.app.get('/configuration', (req, res) => {
       if (req.query.id === clientID) {
-        res.send(JSON.stringify({ config: this.conf, amsg: JSON.parse(fs.readFileSync(`${__dirname}/../etc/automessages.list.json`)) }));
+        res.send(JSON.stringify({
+          config: this.conf,
+          amsg: JSON.parse(fs.readFileSync(`${__dirname}/../etc/automessages.list.json`)),
+          filter: JSON.parse(fs.readFileSync(`${__dirname}/../etc/banned.words.dict.json`)),
+          sounds: JSON.parse(fs.readFileSync(`${__dirname}/../etc/sounds.library.json`)),
+        }));
       }
     });
     this.app.listen(3000, () => {

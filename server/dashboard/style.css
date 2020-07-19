@@ -109,6 +109,19 @@ main {
   height: auto;
   border-radius: 0px;
 }
+.form .form-item input {
+  display: flex;
+  flex-grow: 6;
+  /* max-width: 50%; */
+  /* max-width: 200px; */
+}
+.form .form-item audio {
+  display: flex;
+  flex-grow: 12;
+  width: 100%;
+  /* max-width: 50%; */
+  /* max-width: 200px; */
+}
 .mt-1 {
   margin-top: 1rem;
 }
