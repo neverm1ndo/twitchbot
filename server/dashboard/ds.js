@@ -88,6 +88,7 @@ class FormItemDouble extends FormItem {
 class Form {
   constructor(options) {
     this.form = document.createElement('div');
+    this.form.id = options.name;
     this.form.classList.add('form');
     this.title = document.createElement('h1');
     this.title.innerHTML = options.title;
@@ -215,6 +216,24 @@ class Configurator {
     Object.keys(this.conf.sounds).forEach((command) => {
       this.soundsForm.appendItem(new FormItemDouble({ type: 'text', value: { label: command, input: this.conf.sounds[command].path } }));
     });
+    (function addMenuEvents() {
+      const main = document.getElementsByTagName('main')[0];
+      const mainChildren = main.children;
+      const list = document.querySelector('#list').children;
+      for (let i = 0; (i < list.length) && (i < mainChildren.length); i += 1) {
+        const element = mainChildren[i];
+        const rect = element.getBoundingClientRect();
+        console.log(rect);
+        list[i].id = `link-${element.id}`;
+        list[i].addEventListener('click', () => {
+          console.log(rect.top);
+          main.scrollTo({
+            top: rect.top,
+            behavior: 'smooth',
+          });
+        });
+      }
+    }());
   }
 }
 
