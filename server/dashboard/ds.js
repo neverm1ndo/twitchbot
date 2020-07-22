@@ -72,15 +72,16 @@ class FormItemDouble extends FormItem {
     this.label.remove();
     this.input.remove();
     this.input = document.createElement('input');
+    this.input.type = 'text';
     this.label = document.createElement('input');
-    this.audio = document.createElement('audio');
-    this.audio.src = `./../${options.value.input}`;
-    this.audio.controls = true;
+    // this.audio = document.createElement('audio');
+    // this.audio.src = `./../${options.value.input}`;
+    // this.audio.controls = true;
     this.label.type = 'text';
     this.item.append(this.label, this.input, this.close);
     this.label.value = options.value.label;
     this.input.value = options.value.input;
-    this.item.append(this.audio);
+    // this.item.append(this.audio);
   }
 }
 
