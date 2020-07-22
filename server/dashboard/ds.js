@@ -179,6 +179,8 @@ class Configurator {
       delay: this.dlinks.value,
       prefix: this.prefix.value,
       queueCD: this.qcd.value,
+      manual: false,
+      chat: true,
       mmr: this.mmr.value,
       links: {
         vk: this.media.vk.value,

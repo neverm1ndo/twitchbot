@@ -136,13 +136,13 @@ module.exports = class VideoServer {
             this.bot.send(JSON.stringify({ event: 'save-conf', message: depeche.message }));
             break;
           case 'filter-reconf': {
-            const newfilter = { words: [], timeout: [] };
+            const newfilter = { words: [], timeouts: [] };
             depeche.message[0].split(',').forEach((word) => {
               newfilter.words.push(word);
             });
             if (depeche.message[1].length > 0) {
               depeche.message[1].split(',').forEach((word) => {
-                newfilter.timeout.push(word);
+                newfilter.timeouts.push(word);
               });
             }
             fs.writeFileSync(`${__dirname}/../etc/banned.words.dict.json`, JSON.stringify(newfilter));

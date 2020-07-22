@@ -4,6 +4,7 @@ environment.json
 probs/
 dumps/*.json
 etc/banned.words.dict.json
+etc/*.list.json
 etc/sounds.library.json
 etc/*.key.json
 spec/*.js
