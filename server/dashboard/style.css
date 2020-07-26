@@ -12,6 +12,18 @@ label {
   font-size: 12px;
   padding-right: 15px;
 }
+.alert {
+  position: fixed;
+  line-height: 28px;
+  background: green;
+  color: #ffffff;
+  z-index: 10;
+  top: 0px;
+  right: 0px;
+  left: 60px;
+  display: none;
+  padding: 15px;
+}
 aside {
   display: flex;
   flex-grow: 1;

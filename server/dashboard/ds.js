@@ -2,11 +2,47 @@
 
 let ws;
 
+class Alert {
+  constructor() {
+    this.box = document.querySelector('.alert');
+  }
+
+  success(message) {
+    this.box.innerHTML = message;
+    this.box.style.background = '#43A047';
+    this.box.style.display = 'block';
+    setTimeout(() => {
+      this.closeAlert();
+    }, 2000);
+  }
+
+  error(message) {
+    this.box.innerHTML = `<span>Произошла ошибка: ${message}</span>`;
+    this.box.style.background = '#B71C1C';
+    this.box.style.display = 'block';
+    setTimeout(() => {
+      this.closeAlert();
+    }, 2000);
+  }
+
+  warn(message) {
+    this.box.innerHTML = `<span>Обрыв соединения: ${message}</span>`;
+    this.box.style.background = '#F57F17';
+    this.box.style.display = 'block';
+  }
+
+  closeAlert() {
+    this.box.style.display = 'none';
+  }
+}
+
+const alert = new Alert();
+
 (function setConnection() {
   ws = new WebSocket(`ws://${window.location.host.split(':')[0]}:3001`);
-  console.log(window.location.host);
   ws.onopen = () => {
-    console.log('Соединение установлено.');
+    alert.closeAlert();
+    alert.success('Соединение установлено');
     ws.send(JSON.stringify({ event: 'dashboard-connection' }));
   };
 
@@ -15,6 +51,7 @@ let ws;
       console.log('Соединение закрыто чисто');
     } else {
       console.log('Обрыв соединения');
+      alert.warn(`Код: ${event.code}`);
       setTimeout(() => {
         setConnection();
       }, 5000);
@@ -26,11 +63,18 @@ let ws;
     const depeche = JSON.parse(event.data);
     console.log(depeche);
     switch (depeche.event) {
+      case 'save-success':
+        alert.success('Настройки успешно применены');
+        break;
+      case 'save-fail':
+        alert.error(`Ошибка: ${depeche.message}`);
+        break;
       default:
     }
   };
 
   ws.onerror = (error) => {
+    alert.error(error);
     console.log(`Ошибка ${error.message}`);
   };
 }());
@@ -90,12 +134,16 @@ class Form {
     this.form = document.createElement('div');
     this.form.id = options.name;
     this.form.classList.add('form');
+
     this.title = document.createElement('h1');
     this.title.innerHTML = options.title;
+
     this.submit = document.createElement('button');
     this.submit.classList.add('btn');
+
     this.box = document.createElement('div');
     this.box.classList.add('input-box');
+
     this.submit.innerHTML = 'submit';
     if (options.adds) {
       this.addItem = document.createElement('button');

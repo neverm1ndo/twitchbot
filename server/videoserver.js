@@ -21,6 +21,7 @@ module.exports = class VideoServer {
     this.bot = undefined;
     this.speaker = undefined;
     this.currentVideo = undefined;
+    this.dashboards = [];
     this.playerState = {
       state: '',
       volume: '',
@@ -46,6 +47,7 @@ module.exports = class VideoServer {
             console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[32mControls connected\x1b[0m');
             break;
           case 'dashboard-connection':
+            this.dashboards.push(ws);
             console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[32mСonnected to dashboard\x1b[0m');
             break;
           case 'karaoka-connection':
@@ -126,14 +128,24 @@ module.exports = class VideoServer {
             });
             break;
           case 'amsg-reconf':
-            fs.writeFileSync(`${__dirname}/../etc/automessages.list.json`, JSON.stringify({ m: depeche.message }));
-            this.bot.send(JSON.stringify({ event: 'amsg-reconf', message: depeche.message }));
+            try {
+              fs.writeFileSync(`${__dirname}/../etc/automessages.list.json`, JSON.stringify({ m: depeche.message }));
+              this.bot.send(JSON.stringify({ event: 'amsg-reconf', message: depeche.message }));
+              ws.send(JSON.stringify({ event: 'save-success', message: null }));
+            } catch (e) {
+              this.dashboard.send(JSON.stringify({ event: 'save-fail', message: e }));
+            }
             break;
           case 'save-conf':
-            this.conf = depeche.message;
-            this.queue.innerCooldown = this.conf.qcd;
-            fs.writeFileSync(`${__dirname}/../configs/client.${clientID}.json`, JSON.stringify(depeche.message));
-            this.bot.send(JSON.stringify({ event: 'save-conf', message: depeche.message }));
+            try {
+              this.conf = depeche.message;
+              this.queue.innerCooldown = this.conf.qcd;
+              fs.writeFileSync(`${__dirname}/../configs/client.${clientID}.json`, JSON.stringify(depeche.message));
+              this.bot.send(JSON.stringify({ event: 'save-conf', message: depeche.message }));
+              ws.send(JSON.stringify({ event: 'save-success', message: null }));
+            } catch (e) {
+              this.dashboard.send(JSON.stringify({ event: 'save-fail', message: e }));
+            }
             break;
           case 'filter-reconf': {
             const newfilter = { words: [], timeouts: [] };
@@ -145,8 +157,13 @@ module.exports = class VideoServer {
                 newfilter.timeouts.push(word);
               });
             }
-            fs.writeFileSync(`${__dirname}/../etc/banned.words.dict.json`, JSON.stringify(newfilter));
-            this.bot.send(JSON.stringify({ event: 'filter-reconf', message: null }));
+            try {
+              fs.writeFileSync(`${__dirname}/../etc/banned.words.dict.json`, JSON.stringify(newfilter));
+              ws.send(JSON.stringify({ event: 'save-success', message: null }));
+              this.bot.send(JSON.stringify({ event: 'filter-reconf', message: null }));
+            } catch (e) {
+              this.dashboard.send(JSON.stringify({ event: 'save-fail', message: e }));
+            }
             break;
           }
           default:
@@ -167,6 +184,9 @@ module.exports = class VideoServer {
             break;
           default: break;
         }
+        this.dashboards.forEach((ds) => {
+          this.dashboards.pop(ds);
+        });
       });
     });
   }
