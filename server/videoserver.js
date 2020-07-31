@@ -4,6 +4,7 @@ const express = require('express');
 const request = require('request');
 const WebSocket = require('ws');
 const Queue = require('../lib/queue.module.js');
+const RNG = require('../lib/rng.module');
 
 //  уникальный Id находится в configs/clientid.json
 const clientID = JSON.parse(fs.readFileSync(`${__dirname}/../configs/clientid.json`)).id;
@@ -163,6 +164,22 @@ module.exports = class VideoServer {
               this.bot.send(JSON.stringify({ event: 'filter-reconf', message: null }));
             } catch (e) {
               this.dashboard.send(JSON.stringify({ event: 'save-fail', message: e }));
+            }
+            break;
+          }
+          case 'get-nuzhdik': {
+            if (!this.globalCD) {
+              fs.readdir(path.join(__dirname, 'nujdiki/NuzhdikiSound'), (err, files) => {
+                if (err) {
+                  return console.log(`Unable to scan directory: ${err}`);
+                }
+                this.speaker.send(JSON.stringify({ event: 'sound_msg', message: `./../nujdiki/NuzhdikiSound/${files[RNG.randomize(0, 318)]}` }));
+                return true;
+              });
+              this.globalCD = true;
+              setTimeout(() => {
+                this.globalCD = false;
+              }, 30000);
             }
             break;
           }

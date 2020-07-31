@@ -65,6 +65,7 @@
           }
           loadSource(path) {
             this.audio.src = path;
+            this.audio.load();
             this.audio.play();
           };
         }
