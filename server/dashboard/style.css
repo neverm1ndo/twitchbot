@@ -195,6 +195,12 @@ audio {
 .mt-1 {
   margin-top: 1rem;
 }
+.led {
+  width: 10px;
+  height: 10px;
+  border-radius: 100%;
+  margin: -3px 20px;
+}
 .btn {
   line-height: 28px;
   background: #4e4e4e;

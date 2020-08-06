@@ -35,8 +35,26 @@ class Alert {
     this.box.style.display = 'none';
   }
 }
+class BotStatus {
+  constructor() {
+    this.state = '';
+    this.led = document.querySelector('.led');
+  }
+
+  set setStatus(newstate) {
+    this.state = newstate;
+    if (this.state === 'works') {
+      this.led.style.background = '#43A047';
+      this.led.title = 'Бот подключен к чату';
+    } else {
+      this.led.style.background = '#F57F17';
+      this.led.title = 'Бот отключен от чата';
+    }
+  }
+}
 
 const alert = new Alert();
+const botStatus = new BotStatus();
 
 (function setConnection() {
   ws = new WebSocket(`ws://${window.location.host.split(':')[0]}:3001`);
@@ -68,6 +86,9 @@ const alert = new Alert();
         break;
       case 'save-fail':
         alert.error(`Ошибка: ${depeche.message}`);
+        break;
+      case 'bot-status':
+        botStatus.setStatus = depeche.message;
         break;
       default:
     }

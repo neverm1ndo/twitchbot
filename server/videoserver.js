@@ -23,6 +23,7 @@ module.exports = class VideoServer {
     this.speaker = undefined;
     this.currentVideo = undefined;
     this.dashboards = [];
+    this.botStatus = 'works';
     this.playerState = {
       state: '',
       volume: '',
@@ -41,7 +42,7 @@ module.exports = class VideoServer {
           case 'controls-connection':
             this.controls = ws; // saving controls socket
             this.bot.send(JSON.stringify({ event: 'wakeup', message: null }));
-            try { this.monitor.send(JSON.stringify({ event: 'current-state-request' })); } catch (e) { console.log('ERROR: Waiting for monitor...'); }
+            try { this.monitor.send(JSON.stringify({ event: 'current-state-request' })); } catch (e) { console.log('  [ERROR] Waiting for monitor...'); }
             if (this.currentVideo) {
               this.controls.send(JSON.stringify({ event: 'video-data', message: this.currentVideo }));
             }
@@ -50,6 +51,7 @@ module.exports = class VideoServer {
           case 'dashboard-connection':
             this.dashboards.push(ws);
             console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[32mСonnected to dashboard\x1b[0m');
+            ws.send(JSON.stringify({ event: 'bot-status', message: this.botStatus }));
             break;
           case 'karaoka-connection':
             this.karaoka = ws; // saving karaoka socket
@@ -108,6 +110,12 @@ module.exports = class VideoServer {
           case 'bot-client':
             this.bot = ws;
             console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[32mBot connected\x1b[0m');
+            break;
+          case 'bot-status':
+            this.botStatus = depeche.message;
+            this.dashboards.forEach((db) => {
+              db.send(JSON.stringify({ event: 'bot-status', message: depeche.message }));
+            });
             break;
           case 'play-sound':
             if (this.globalCD === false) {
