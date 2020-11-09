@@ -16,7 +16,6 @@ module.exports = class VideoServer {
   constructor() {
     this.conf = JSON.parse(fs.readFileSync(`${__dirname}/../configs/client.${clientID}.json`));
     this.app = express();
-    this.wss = new WebSocket.Server({ port: 3001 });
     this.queue = new Queue({ cooldown: this.conf.queueCD });
     this.globalCD = false;
     this.monitor = undefined;
@@ -32,7 +31,49 @@ module.exports = class VideoServer {
       volume: '',
       muted: '',
     };
+    this.app.use(express.static(path.join(__dirname)));
+    this.app.get('/monitor', (req, res) => {
+      if (req.query.id === clientID) {
+        res.sendFile(`${__dirname}/yt-features/index.html`);
+      }
+    });
+    this.app.get(`/${clientID}`, (req, res) => {
+      res.sendFile(`${__dirname}/dashboard/index.html`);
+    });
+    this.app.get('/controls', (req, res) => {
+      if (req.query.id === clientID) {
+        res.sendFile(`${__dirname}/yt-features/controls.html`);
+      }
+    });
+    this.app.get('/karaoka', (req, res) => {
+      if (req.query.id === clientID) {
+        res.sendFile(`${__dirname}/karaoka/karaoka.html`);
+      }
+    });
+    this.app.get('/speaker', (req, res) => {
+      if (req.query.id === clientID) {
+        res.sendFile(`${__dirname}/speaker-features/speaker.html`);
+      }
+    });
+    /// BOT API
+    this.app.get('/configuration', (req, res) => {
+      if (req.query.id === clientID) {
+        res.send(JSON.stringify({
+          config: this.conf,
+          amsg: JSON.parse(fs.readFileSync(`${__dirname}/../etc/automessages.list.json`)),
+          filter: JSON.parse(fs.readFileSync(`${__dirname}/../etc/banned.words.dict.json`)),
+          sounds: JSON.parse(fs.readFileSync(`${__dirname}/../etc/sounds.library.json`)),
+        }));
+      }
+    });
+    this.httpsServer = https.createServer({
+      cert: fs.readFileSync(process.env.SSL_FULLCHAIN_PATH),
+      key: fs.readFileSync(process.env.SSL_PRIVKEY_PATH),
+    }, this.app).listen(process.env.HTTPS_PORT, () => {
+      console.log(`  Video server listening on port ${process.env.HTTPS_PORT}. Add https://ohmydog.ml/controls to your OBS browser!\n`);
+    });
     this.key = JSON.parse(fs.readFileSync(`${__dirname}/../etc/google.api.key.json`)).key;
+    this.wss = new WebSocket.Server({ port: 3001, server: this.httpsServer });
     this.wss.on('connection', (ws) => {
       ws.on('message', (message) => {
         const depeche = JSON.parse(message);
@@ -221,50 +262,6 @@ module.exports = class VideoServer {
 
   get config() {
     return this.conf;
-  }
-
-  start() {
-    this.app.use(express.static(path.join(__dirname)));
-    this.app.get('/monitor', (req, res) => {
-      if (req.query.id === clientID) {
-        res.sendFile(`${__dirname}/yt-features/index.html`);
-      }
-    });
-    this.app.get(`/${clientID}`, (req, res) => {
-      res.sendFile(`${__dirname}/dashboard/index.html`);
-    });
-    this.app.get('/controls', (req, res) => {
-      if (req.query.id === clientID) {
-        res.sendFile(`${__dirname}/yt-features/controls.html`);
-      }
-    });
-    this.app.get('/karaoka', (req, res) => {
-      if (req.query.id === clientID) {
-        res.sendFile(`${__dirname}/karaoka/karaoka.html`);
-      }
-    });
-    this.app.get('/speaker', (req, res) => {
-      if (req.query.id === clientID) {
-        res.sendFile(`${__dirname}/speaker-features/speaker.html`);
-      }
-    });
-    /// BOT API
-    this.app.get('/configuration', (req, res) => {
-      if (req.query.id === clientID) {
-        res.send(JSON.stringify({
-          config: this.conf,
-          amsg: JSON.parse(fs.readFileSync(`${__dirname}/../etc/automessages.list.json`)),
-          filter: JSON.parse(fs.readFileSync(`${__dirname}/../etc/banned.words.dict.json`)),
-          sounds: JSON.parse(fs.readFileSync(`${__dirname}/../etc/sounds.library.json`)),
-        }));
-      }
-    });
-    https.createServer({
-      cert: fs.readFileSync(process.env.SSL_FULLCHAIN_PATH),
-      key: fs.readFileSync(process.env.SSL_PRIVKEY_PATH),
-    }, this.app).listen(process.env.HTTPS_PORT, () => {
-      console.log(`  Video server listening on port ${process.env.HTTPS_PORT}. Add https://ohmydog.ml/controls to your OBS browser!\n`);
-    });
   }
 
   getVideoInfo(id) {

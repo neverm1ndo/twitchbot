@@ -57,7 +57,7 @@ const alert = new Alert();
 const botStatus = new BotStatus();
 
 (function setConnection() {
-  ws = new WebSocket(`ws://${window.location.host.split(':')[0]}:3001`);
+  ws = new WebSocket(`wss://${window.location.host.split(':')[0]}:3001`);
   ws.onopen = () => {
     alert.closeAlert();
     alert.success('Соединение установлено');
@@ -263,7 +263,7 @@ class Configurator {
 
   async getConfiguration() {
     console.log(window.location.pathname);
-    this.response = await fetch(`http://${window.location.hostname}:3000/configuration?id=${window.location.pathname.substr(1)}`);
+    this.response = await fetch(`https://${window.location.hostname}:3443/configuration?id=${window.location.pathname.substr(1)}`);
     if (this.response.ok) {
       this.conf = await this.response.json();
     } else {
