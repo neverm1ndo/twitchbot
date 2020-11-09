@@ -13,3 +13,4 @@ log.txt
 clientid.json
 client.*.json
 server/nujdiki/
+.env
