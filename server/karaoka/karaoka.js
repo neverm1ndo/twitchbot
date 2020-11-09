@@ -48,5 +48,5 @@ class Karaoka {
   }
 }
 
-const k = new Karaoka(`ws://${window.location.host.split(':')[0]}:3001`);
+const k = new Karaoka(`ws://${window.location.host.split(':')[0]}`);
 k.setConnection();
