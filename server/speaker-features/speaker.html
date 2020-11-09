@@ -208,7 +208,7 @@
               speaker.populateVoiceList();
 
         (function setConnection() {
-          ws = new WebSocket(`wss://${window.location.host.split(':')[0]}`);
+          ws = new WebSocket(`wss://${window.location.host.split(':')[0]}:3001`);
             console.log(window.location.host);
           ws.onopen = function() {
             console.log("Соединение установлено.");

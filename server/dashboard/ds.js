@@ -57,7 +57,7 @@ const alert = new Alert();
 const botStatus = new BotStatus();
 
 (function setConnection() {
-  ws = new WebSocket(`wss://${window.location.host.split(':')[0]}`);
+  ws = new WebSocket(`wss://${window.location.host.split(':')[0]}:3001`);
   ws.onopen = () => {
     alert.closeAlert();
     alert.success('Соединение установлено');
