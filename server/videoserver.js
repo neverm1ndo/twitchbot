@@ -73,7 +73,7 @@ module.exports = class VideoServer {
       console.log(`  Video server listening on port ${process.env.HTTPS_PORT}. Add https://ohmydog.ml/controls to your OBS browser!\n`);
     });
     this.key = JSON.parse(fs.readFileSync(`${__dirname}/../etc/google.api.key.json`)).key;
-    this.wss = new WebSocket.Server({ port: 3001, server: this.httpsServer });
+    this.wss = new WebSocket.Server({ server: this.httpsServer });
     this.wss.on('connection', (ws) => {
       ws.on('message', (message) => {
         const depeche = JSON.parse(message);
