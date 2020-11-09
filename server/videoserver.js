@@ -1,11 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
+const https = require('https');
 const request = require('request');
+const dotenv = require('dotenv');
 const WebSocket = require('ws');
 const Queue = require('../lib/queue.module.js');
 const RNG = require('../lib/rng.module');
 
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 //  уникальный Id находится в configs/clientid.json
 const clientID = JSON.parse(fs.readFileSync(`${__dirname}/../configs/clientid.json`)).id;
 
@@ -256,8 +259,11 @@ module.exports = class VideoServer {
         }));
       }
     });
-    this.app.listen(3000, () => {
-      console.log('  Video server listening on port 3000! Add http://localhost:3000 to your OBS browser!\n');
+    https.createServer({
+      cert: fs.readFileSync(process.env.SSL_FULLCHAIN_PATH),
+      key: fs.readFileSync(process.env.SSL_PRIVKEY_PATH),
+    }, this.app).listen(process.env.HTTPS_PORT, () => {
+      console.log(`  Video server listening on port ${process.env.HTTPS_PORT}. Add https://ohmydog.ml/controls to your OBS browser!\n`);
     });
   }
 
