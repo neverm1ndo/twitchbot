@@ -138,7 +138,7 @@
                   } else {
                     reject('Reject in promise: setSpeech()');
                   }
-              }, 10);
+              }, 100);
             }).then((voices) => { this.voices = voices });
             this.voices = this.voices.sort(function (a, b) {
               const aname = a.name.toUpperCase(), bname = b.name.toUpperCase();
@@ -208,7 +208,7 @@
               speaker.populateVoiceList();
 
         (function setConnection() {
-          ws = new WebSocket(`wss://${window.location.host.split(':')[0]}`);
+          ws = new WebSocket(`wss://${window.location.host}`);
             console.log(window.location.host);
           ws.onopen = function() {
             console.log("Соединение установлено.");
