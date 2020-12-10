@@ -77,7 +77,7 @@ class Remote2 {
 
 function setConnection() {
   connectionCounts += 1;
-  ws = new WebSocket(`ws://${window.location.host.split(':')[0]}`);
+  ws = new WebSocket(`ws://${window.location.host.split(':')[0]}:3000`);
   ws.onopen = () => {
     console.log('Соединение установлено.');
     if (connectionCounts > 1) {

@@ -129,7 +129,7 @@ function syncState(newstate) {
 }
 
 function setConnection() {
-  ws = new WebSocket(`ws://${window.location.host.split(':')[0]}`);
+  ws = new WebSocket(`ws://${window.location.host.split(':')[0]}:3000`);
   console.log(window.location.host);
   ws.onopen = () => {
     console.log('Соединение установлено.');

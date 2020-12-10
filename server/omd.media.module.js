@@ -64,7 +64,7 @@ module.exports = class VideoServer {
       console.log(`  Video server listening on port ${process.env.HTTPS_PORT}. Add https://omd.nmnd.ru/controls to your OBS browser!\n`);
     });
     this.key = process.env.YT_API_KEY;
-    this.wss = new WebSocket.Server({ server: this.httpsServer });
+    this.wss = new WebSocket.Server({ port: 3000 });
     this.wss.on('connection', (ws) => {
       ws.on('message', (message) => {
         const depeche = JSON.parse(message);
