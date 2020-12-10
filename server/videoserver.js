@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
-const https = require('https');
+const http = require('http');
 const request = require('request');
 const dotenv = require('dotenv');
 const WebSocket = require('ws');
@@ -66,11 +66,10 @@ module.exports = class VideoServer {
         }));
       }
     });
-    this.httpsServer = https.createServer({
-      cert: fs.readFileSync(process.env.SSL_FULLCHAIN_PATH),
-      key: fs.readFileSync(process.env.SSL_PRIVKEY_PATH),
+    this.httpsServer = http.createServer({
+      port: 8080,
     }, this.app).listen(process.env.HTTPS_PORT, () => {
-      console.log(`  Video server listening on port ${process.env.HTTPS_PORT}. Add https://ohmydog.ml/controls to your OBS browser!\n`);
+      console.log(`  Video server listening on port ${process.env.HTTPS_PORT}. Add https://omd.nmnd.ru/controls to your OBS browser!\n`);
     });
     this.key = JSON.parse(fs.readFileSync(`${__dirname}/../etc/google.api.key.json`)).key;
     this.wss = new WebSocket.Server({ server: this.httpsServer });
