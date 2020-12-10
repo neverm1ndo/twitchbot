@@ -1,26 +1,25 @@
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
-const http = require('http');
 const request = require('request');
 const dotenv = require('dotenv');
 const WebSocket = require('ws');
-const Queue = require('../lib/queue.module.js');
+const Queue = require('../lib/queue.module');
 const RNG = require('../lib/rng.module');
 
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
-//  уникальный Id находится в configs/clientid.json
-const clientID = JSON.parse(fs.readFileSync(`${__dirname}/../configs/clientid.json`)).id;
+
+const medias = path.resolve(process.cwd(), 'server');
+//  уникальный Id находится в файле .env
 
 module.exports = class VideoServer {
   constructor() {
-    this.conf = JSON.parse(fs.readFileSync(`${__dirname}/../configs/client.${clientID}.json`));
+    this.conf = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), `configs/client.${process.env.CLIENT_ID}.json`)));
     this.app = express();
     this.queue = new Queue({ cooldown: this.conf.queueCD });
     this.globalCD = false;
     this.monitor = undefined;
     this.controls = undefined;
-    this.karaoka = undefined;
     this.bot = undefined;
     this.speaker = undefined;
     this.currentVideo = undefined;
@@ -31,47 +30,40 @@ module.exports = class VideoServer {
       volume: '',
       muted: '',
     };
-    this.app.use(express.static(path.join(__dirname)));
+    this.app.use(express.static(path.resolve(__dirname)));
     this.app.get('/monitor', (req, res) => {
-      if (req.query.id === clientID) {
+      if (req.query.id === process.env.CLIENT_ID) {
         res.sendFile(`${__dirname}/yt-features/index.html`);
       }
     });
-    this.app.get(`/${clientID}`, (req, res) => {
-      res.sendFile(`${__dirname}/dashboard/index.html`);
+    this.app.get(`/${process.env.CLIENT_ID}`, (req, res) => {
+      res.sendFile(path.resolve(medias, 'dashboard/index.html'));
     });
     this.app.get('/controls', (req, res) => {
-      if (req.query.id === clientID) {
-        res.sendFile(`${__dirname}/yt-features/controls.html`);
-      }
-    });
-    this.app.get('/karaoka', (req, res) => {
-      if (req.query.id === clientID) {
-        res.sendFile(`${__dirname}/karaoka/karaoka.html`);
+      if (req.query.id === process.env.CLIENT_ID) {
+        res.sendFile(path.resolve(medias, 'yt-features/controls.html'));
       }
     });
     this.app.get('/speaker', (req, res) => {
-      if (req.query.id === clientID) {
-        res.sendFile(`${__dirname}/speaker-features/speaker.html`);
+      if (req.query.id === process.env.CLIENT_ID) {
+        res.sendFile(path.resolve(medias, 'speaker-features/speaker.html'));
       }
     });
     /// BOT API
     this.app.get('/configuration', (req, res) => {
-      if (req.query.id === clientID) {
+      if (req.query.id === process.env.CLIENT_ID) {
         res.send(JSON.stringify({
           config: this.conf,
-          amsg: JSON.parse(fs.readFileSync(`${__dirname}/../etc/automessages.list.json`)),
-          filter: JSON.parse(fs.readFileSync(`${__dirname}/../etc/banned.words.dict.json`)),
-          sounds: JSON.parse(fs.readFileSync(`${__dirname}/../etc/sounds.library.json`)),
+          amsg: JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'etc/automessages.list.json'))),
+          filter: JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'etc/banned.words.dict.json'))),
+          sounds: JSON.parse(fs.readFileSync(path.resolve(process.cwd(), 'etc/sounds.library.json'))),
         }));
       }
     });
-    this.httpsServer = http.createServer({
-      port: 8080,
-    }, this.app).listen(process.env.HTTPS_PORT, () => {
+    this.app.listen(process.env.HTTPS_PORT, () => {
       console.log(`  Video server listening on port ${process.env.HTTPS_PORT}. Add https://omd.nmnd.ru/controls to your OBS browser!\n`);
     });
-    this.key = JSON.parse(fs.readFileSync(`${__dirname}/../etc/google.api.key.json`)).key;
+    this.key = process.env.YT_API_KEY;
     this.wss = new WebSocket.Server({ server: this.httpsServer });
     this.wss.on('connection', (ws) => {
       ws.on('message', (message) => {
@@ -80,7 +72,7 @@ module.exports = class VideoServer {
           case 'ytp-loaded':
             this.monitor = ws; // saving monitor socket
             this.monitor.send(JSON.stringify({ event: 'current-state-request' }));
-            console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[32mMonitor connected\x1b[0m', ' localhost:3000');
+            console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[32mMonitor connected\x1b[0m');
             break;
           case 'controls-connection':
             this.controls = ws; // saving controls socket
@@ -96,18 +88,10 @@ module.exports = class VideoServer {
             console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[32mСonnected to dashboard\x1b[0m');
             ws.send(JSON.stringify({ event: 'bot-status', message: this.botStatus }));
             break;
-          case 'karaoka-connection':
-            this.karaoka = ws; // saving karaoka socket
-            console.log('> \x1b[32mKaraoke monitor connected\x1b[0m');
-            if (this.currentVideo) {
-              this.karaoka.send(JSON.stringify({ event: 'video-data', message: this.currentVideo }));
-            }
-            console.log('> \x1b[32mControls connected\x1b[0m', ' localhost:3000/controls');
-            break;
           case 'speaker-connection':
             this.speaker = ws; // saving speaker socket
             this.speaker.send(JSON.stringify({ event: 'connection', message: 'Connected' }));
-            console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[32mSpeaker connected\x1b[0m', ' localhost:3000/speaker');
+            console.log('>', `[${ws._socket.remoteAddress}]`, ' \x1b[32mSpeaker connected\x1b[0m');
             break;
           case 'speaker-message':
             console.log(depeche.message);
@@ -181,7 +165,7 @@ module.exports = class VideoServer {
             break;
           case 'amsg-reconf':
             try {
-              fs.writeFileSync(`${__dirname}/../etc/automessages.list.json`, JSON.stringify({ m: depeche.message }));
+              fs.writeFileSync(path.resolve(process.cwd(), 'etc/automessages.list.json'), JSON.stringify({ m: depeche.message }));
               this.bot.send(JSON.stringify({ event: 'amsg-reconf', message: depeche.message }));
               ws.send(JSON.stringify({ event: 'save-success', message: null }));
             } catch (e) {
@@ -192,7 +176,7 @@ module.exports = class VideoServer {
             try {
               this.conf = depeche.message;
               this.queue.innerCooldown = this.conf.qcd;
-              fs.writeFileSync(`${__dirname}/../configs/client.${clientID}.json`, JSON.stringify(depeche.message));
+              fs.writeFileSync(path.resolve(process.cwd(), `configs/client.${process.env.CLIENT_ID}.json`), JSON.stringify(depeche.message));
               this.bot.send(JSON.stringify({ event: 'save-conf', message: depeche.message }));
               ws.send(JSON.stringify({ event: 'save-success', message: null }));
             } catch (e) {
@@ -210,7 +194,7 @@ module.exports = class VideoServer {
               });
             }
             try {
-              fs.writeFileSync(`${__dirname}/../etc/banned.words.dict.json`, JSON.stringify(newfilter));
+              fs.writeFileSync(path.resolve(process.cwd(), 'etc/banned.words.dict.json'), JSON.stringify(newfilter));
               ws.send(JSON.stringify({ event: 'save-success', message: null }));
               this.bot.send(JSON.stringify({ event: 'filter-reconf', message: null }));
             } catch (e) {
@@ -220,11 +204,11 @@ module.exports = class VideoServer {
           }
           case 'get-nuzhdik': {
             if (!this.globalCD) {
-              fs.readdir(path.join(__dirname, 'nujdiki/NuzhdikiSound'), (err, files) => {
+              fs.readdir(path.resolve(medias, 'nujdiki/NuzhdikiSound'), (err, files) => {
                 if (err) {
                   return console.log(`Unable to scan directory: ${err}`);
                 }
-                this.speaker.send(JSON.stringify({ event: 'sound_msg', message: `./../nujdiki/NuzhdikiSound/${files[RNG.randomize(0, 318)]}` }));
+                this.speaker.send(JSON.stringify({ event: 'sound_msg', message: path.resolve(medias, `nujdiki/NuzhdikiSound/${files[RNG.randomize(0, 318)]}`) }));
                 return true;
               });
               this.globalCD = true;
